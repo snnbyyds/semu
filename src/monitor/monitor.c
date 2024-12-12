@@ -8,7 +8,8 @@ static void parse_args(int argc, char *argv[]) {
 }
 
 static void welcome() {
-    puts("Welcome to SEMU!\nType 'help' for help.");
+    printf("\033[35;47mWelcome to SEMU!\033[0m\n");
+    printf("Type '\033[32mhelp\033[0m' for help.\n");
 }
 
 void init_monitor(int argc, char *argv[]) {
