@@ -1,0 +1,2 @@
+TARGET_PATH=$(pwd)
+export SEMU_HOME=$TARGET_PATH

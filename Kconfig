@@ -1,0 +1,56 @@
+mainmenu "SEMU Configuration Menu"
+
+menu "Build Options"
+choice
+  prompt "Compiler"
+  default CC_CLANG
+config CC_GCC
+  bool "gcc"
+config CC_GPP
+  bool "g++"
+config CC_CLANG
+  bool "clang"
+endchoice
+
+config CC
+  string
+  default "gcc" if CC_GCC
+  default "g++" if CC_GPP
+  default "clang" if CC_CLANG
+  default "none"
+
+choice
+  prompt "Optimization Level"
+  default CC_O2
+config CC_O0
+  bool "O0"
+config CC_O1
+  bool "O1"
+config CC_O2
+  bool "O2"
+config CC_O3
+  bool "O3"
+endchoice
+
+config CC_OPT
+  string
+  default "-O0" if CC_O0
+  default "-O1" if CC_O1
+  default "-O2" if CC_O2
+  default "-O3" if CC_O3
+  default "none"
+
+config CC_LTO
+  depends on !TARGET_AM
+  bool "Enable link-time optimization"
+  default n
+
+config CC_DEBUG
+  bool "Enable debug information"
+  default n
+
+config CC_ASAN
+  depends on MODE_SYSTEM
+  bool "Enable address sanitizer"
+  default n
+endmenu
