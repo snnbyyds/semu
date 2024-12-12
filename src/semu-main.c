@@ -1,8 +1,10 @@
 #include <common.h>
-#include <stdio.h>
 
-int main() {
-    int32_t t = 0;
-    printf("%d: Hello World!\n", t);
+void init_monitor(int argc, char *argv[]);
+void start_debugger();
+
+int main(int argc, char *argv[]) {
+    init_monitor(argc, argv);
+    start_debugger();
     return 0;
 }

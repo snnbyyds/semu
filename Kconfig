@@ -1,5 +1,8 @@
 mainmenu "SEMU Configuration Menu"
 
+source "src/memory/Kconfig"
+source "src/monitor/Kconfig"
+
 menu "Build Options"
 choice
   prompt "Compiler"

@@ -1,0 +1,6 @@
+menuconfig USE_GDBSTUB
+  bool "Use gdb instead of sdb"
+  default nemu
+  help
+    Start USE_GDBSTUB
+
