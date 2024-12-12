@@ -11,6 +11,8 @@ typedef struct {
 
 /* sdb builtin commands */
 
+static bool semu_quit = false;
+
 static bool cmd_clear(char *args) {
     return (bool)(!system("clear"));
 }
@@ -19,8 +21,8 @@ static bool cmd_help(char *args);
 
 static bool cmd_quit(char *args) {
     puts("Exiting SEMU...\nHave a nice day!");
-    exit(EXIT_SUCCESS); // TODO: Call our status handling plugin
-    return false;
+    semu_quit = true; // TODO: Call our status handling plugin
+    return true;
 }
 
 static sdb_cmd_t cmdtbl[] = {
@@ -84,6 +86,9 @@ static void sdb_main_session() {
     while (1) {
         sdb_read_input();
         sdb_handle_input();
+        if (semu_quit) {
+            break;
+        }
     }
 }
 

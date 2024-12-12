@@ -11,4 +11,11 @@
 #include <generated/autoconf.h>
 #include <macro.h>
 
+typedef uint32_t word_t;
+typedef word_t vaddr_t;
+typedef vaddr_t paddr_t;
+
+#define PRIword PRIu32
+#define PRIaddr PRIx32
+
 #endif

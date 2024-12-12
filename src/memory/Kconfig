@@ -1,1 +1,15 @@
+menu "Memory Configurations"
 
+config MBASE
+  hex "Memory Base"
+  default 0x80000000
+
+config MSIZE
+  hex "Memory Size"
+  default 0x10000000
+
+config RESET_VECTOR
+  hex "PC reset vector"
+  default 0x80000000
+
+endmenu

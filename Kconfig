@@ -1,7 +1,6 @@
 mainmenu "SEMU Configuration Menu"
 
 source "src/memory/Kconfig"
-source "src/monitor/Kconfig"
 
 menu "Build Options"
 choice
@@ -57,3 +56,5 @@ config CC_ASAN
   bool "Enable address sanitizer"
   default n
 endmenu
+
+source "src/monitor/Kconfig"
