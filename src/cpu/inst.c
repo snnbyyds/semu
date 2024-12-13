@@ -14,6 +14,11 @@
 typedef enum { R_type, I_type, S_type, B_type, U_type, J_type, N_type, INVALID } inst_type;
 
 static inline inst_type get_inst_type(exec_t *info) {
+    if (info->inst.raw_inst == 0b00000000000100000000000001110011 ||
+        info->inst.raw_inst == 0b00000000000000000000000001110011 ||
+        info->inst.raw_inst == 0b00110000001000000000000001110011) {
+        return N_type;
+    }
     switch (info->inst.opcode) {
         case 0b0110011:
             return R_type;
@@ -21,6 +26,7 @@ static inline inst_type get_inst_type(exec_t *info) {
         case 0b0010011: // addi, slti...
         case 0b1100111: // jalr...
         case 0b0001111: // fence...
+        case 0b1110011: // csrrw, csrrw...
             return I_type;
         case 0b0100011:
             return S_type;
@@ -31,10 +37,8 @@ static inline inst_type get_inst_type(exec_t *info) {
             return U_type;
         case 0b1101111:
             return J_type;
-        case 0b1110011:
-            return N_type; // A special type that can be matched directly with raw inst
         default:
-            printf("Unknown opcode 0x%" PRIx32 "\n", info->inst.opcode);
+            Error("Unknown opcode 0x%" PRIx32 "", info->inst.opcode);
             assert(0);
     }
     return INVALID; // won't reach here
