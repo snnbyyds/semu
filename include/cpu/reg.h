@@ -5,4 +5,6 @@
 
 #define gpr(i) cpu.gpr[i]
 
+void reg_val_display();
+
 #endif

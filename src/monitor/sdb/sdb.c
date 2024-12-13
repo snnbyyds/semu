@@ -1,4 +1,5 @@
 #include <cpu/cpu.h>
+#include <cpu/reg.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <string.h>
@@ -41,11 +42,21 @@ static bool cmd_c(char *args) {
     return true;
 }
 
+static bool cmd_info(char *args) {
+    if (args && !strcmp(args, "r")) {
+        reg_val_display();
+    } else {
+        Warn("Invalid argument passed!");
+    }
+    return true;
+}
+
 static sdb_cmd_t cmdtbl[] = {
     {"clear", "Clear the screen", cmd_clear},
     {"quit", "Quit SN Emu", cmd_quit},
     {"si", "Single step", cmd_si},
     {"c", "Continue", cmd_c},
+    {"info", "Use 'info r' for reg vals", cmd_info},
     {"help", "Print help msg", cmd_help}
 };
 
@@ -79,10 +90,7 @@ static inline void sdb_handle_input() {
     if (!cmd) {
         return;
     }
-    char *args = cmd + strlen(cmd) + 1;
-    if (*(args - 1) == '\0') {
-        args = NULL;
-    }
+    char *args = strtok(NULL, " ");
     size_t i = 0;
     for (; i < LENGTH(cmdtbl); i++) {
         if (!strcmp(cmdtbl[i].name, cmd)) {
