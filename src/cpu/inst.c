@@ -33,7 +33,7 @@ static inline inst_type get_inst_type(exec_t *info) {
         case 0b1110011:
             return N_type; // A special type that can be matched directly with raw inst
         default:
-            printf("Unknown opcode %" PRIx32 "\n", info->inst.opcode);
+            printf("Unknown opcode 0x%" PRIx32 "\n", info->inst.opcode);
             assert(0);
     }
     return INVALID; // won't reach here

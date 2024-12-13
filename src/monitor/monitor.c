@@ -1,4 +1,5 @@
 #include <cpu/cpu.h>
+#include <memory.h>
 #include <utils/state.h>
 #include <getopt.h>
 
@@ -19,12 +20,13 @@ static void parse_args(int argc, char *argv[]) {
     };
     int opt;
     while (1) {
-        opt = getopt_long(argc, argv, "hv", options, NULL);
+        opt = getopt_long(argc, argv, "-hv", options, NULL);
         if (opt == -1) {
             break;
         }
         switch (opt) {
             case 'v': printf("Version: %f\n", (float)VERSION); exit(EXIT_SUCCESS);
+            case 1: image = optarg; break;
             default:
                 // TODO: Better prompt
                 puts("Valid Options:");
@@ -42,7 +44,18 @@ static void welcome() {
 }
 
 static void load_image() {
-    assert(!image); // TODO
+    if (!image) {
+        return;
+    }
+    FILE *fp = fopen(image, "rb");
+    assert(fp);
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    Log("Loading image %s of size %ld...", image, size);
+    fseek(fp, 0, SEEK_SET);
+    int res = fread(guest_to_host(CONFIG_RESET_VECTOR), size, 1, fp);
+    assert(res == 1);
+    fclose(fp);
 }
 
 void init_monitor(int argc, char *argv[]) {

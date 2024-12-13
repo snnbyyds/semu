@@ -28,9 +28,10 @@ void init_cpu(bool img_builtin) {
     memset(&cpu, 0, sizeof(cpu));
     cpu.pc = CONFIG_RESET_VECTOR;
     Log("CPU Initialized");
-
-    assert(img_builtin); // TODO: Implement non-builtin image
-    memcpy(guest_to_host(CONFIG_RESET_VECTOR), builtin_img, sizeof(builtin_img));
+    if (img_builtin) {
+        Log("Loading builtin image to 0x%" PRIx64 "...", (uint64_t)CONFIG_RESET_VECTOR);
+        memcpy(guest_to_host(CONFIG_RESET_VECTOR), builtin_img, sizeof(builtin_img));
+    }
 }
 
 void cpu_exec(uint64_t step) {
