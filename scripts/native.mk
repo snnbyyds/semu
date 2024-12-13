@@ -2,7 +2,8 @@ include $(SEMU_HOME)/scripts/build.mk
 
 override ARGS ?=
 
-SEMU_EXEC := $(BINARY) $(ARGS)
+IMG ?=
+SEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 run-env: $(BINARY)
 
