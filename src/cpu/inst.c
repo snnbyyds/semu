@@ -9,6 +9,7 @@
 #define Mr vaddr_read
 #define Mw vaddr_write
 #define PC info->pc
+#define NPC info->dnpc
 
 typedef enum { R_type, I_type, S_type, B_type, U_type, J_type, N_type, INVALID } inst_type;
 
@@ -48,9 +49,9 @@ static inline void exec_inst(inst_type type, exec_t *info) {
 #define RTYPE_RULE(NAME, _FUNCT7, _FUNCT3, _OPCODE, ...) else if (opcode == (_OPCODE) && funct3 == (_FUNCT3) && funct7 == (_FUNCT7)) { __VA_ARGS__ ; }
 #define ITYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)          else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ; }
 #define STYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)          else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ; }
-#define BTYPE_RULE(NAME) // TODO
+#define BTYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)          else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ;}
 #define UTYPE_RULE(NAME, _OPCODE, ...)                   else if (opcode == (_OPCODE)) { __VA_ARGS__ ; }
-#define JTYPE_RULE(NAME) // TODO
+#define JTYPE_RULE(NAME, _OPCODE, ...)                   else if (opcode == (_OPCODE)) { __VA_ARGS__ ; }
 #define NTYPE_RULE(NAME, _RAWINST, ...)                  else if (raw_inst == (_RAWINST)) { __VA_ARGS__ ; }
 
 #define MATCH_RTYPE() \
@@ -92,6 +93,14 @@ static inline void exec_inst(inst_type type, exec_t *info) {
 
 #define MATCH_BTYPE() \
     do { \
+        uint32_t opcode = inst.B_type.opcode, \
+        funct3 = inst.B_type.funct3, \
+        rs1 __attribute__((unused)) = inst.B_type.rs1, \
+        rs2 __attribute__((unused)) = inst.B_type.rs2; \
+        word_t imm __attribute__((unused)) = SEXT(inst.B_type.imm12 << 12 | inst.B_type.imm11 << 11 | inst.B_type.imm10_5 << 5 | inst.B_type.imm4_1 << 1, 13); \
+        RULE_START \
+        BTYPE_RULE("beq", 0b000, 0b1100011, if (R(rs1) == R(rs2)) NPC = PC + imm) \
+        RULE_END \
     } while (0)
 
 #define MATCH_UTYPE() \
@@ -106,6 +115,12 @@ static inline void exec_inst(inst_type type, exec_t *info) {
 
 #define MATCH_JTYPE() \
     do { \
+        uint32_t opcode = inst.J_type.opcode, \
+        rd __attribute__((unused)) = inst.J_type.rd; \
+        word_t imm __attribute__((unused)) = SEXT(inst.J_type.imm20 << 20 | inst.J_type.imm19_12 << 12 | inst.J_type.imm11 << 11 | inst.J_type.imm10_1 << 1, 21); \
+        RULE_START \
+        JTYPE_RULE("jal", 0b1101111, R(rd) = PC + 4, NPC = PC + imm) \
+        RULE_END \
     } while (0)
 
 #define MATCH_NTYPE() \
