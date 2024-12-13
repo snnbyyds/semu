@@ -11,6 +11,7 @@
 
 void init_cpu(bool img_builtin);
 void init_memory();
+void sdb_batchmode_on();
 
 static char *image = NULL;
 
@@ -18,16 +19,18 @@ static void parse_args(int argc, char *argv[]) {
     const struct option options[] = {
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'v'},
+        {"batch", no_argument, NULL, 'b'},
         {0, 0, 0, 0}
     };
     int opt;
     while (1) {
-        opt = getopt_long(argc, argv, "-hv", options, NULL);
+        opt = getopt_long(argc, argv, "-hvb", options, NULL);
         if (opt == -1) {
             break;
         }
         switch (opt) {
             case 'v': printf("Version: %f\n", (float)VERSION); exit(EXIT_SUCCESS);
+            case 'b': sdb_batchmode_on(); break;
             case 1: image = optarg; break;
             default:
                 // TODO: Better prompt

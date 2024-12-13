@@ -69,6 +69,7 @@ static bool cmd_help(char *args) {
 
 /* sdb main session */
 
+static bool batch_mode = false;
 static char *input = NULL;
 
 static inline void sdb_read_input() {
@@ -118,7 +119,14 @@ static void sdb_main_session() {
     }
 }
 
+void sdb_batchmode_on() {
+    batch_mode = true;
+}
+
 void start_sdb() {
+    if (batch_mode) {
+        cmd_c(NULL);
+    }
     sdb_main_session();
 }
 
