@@ -1,10 +1,12 @@
-#include <common.h>
+#include <cpu/cpu.h>
+#include <utils/state.h>
 
-void init_cpu();
+void init_cpu(bool img_builtin);
 void init_memory();
 
-static void parse_args(int argc, char *argv[]) {
+static char *image = NULL;
 
+static void parse_args(int argc, char *argv[]) {
 }
 
 static void welcome() {
@@ -12,9 +14,15 @@ static void welcome() {
     printf("Type '\033[32mhelp\033[0m' for help.\n");
 }
 
+static void load_image() {
+    assert(!image); // TODO
+}
+
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
-    init_cpu();
+    load_image();
+    SET_STATE(STOP);
     init_memory();
+    init_cpu(image == NULL);
     welcome();
 }

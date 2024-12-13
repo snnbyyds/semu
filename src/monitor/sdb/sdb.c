@@ -1,4 +1,4 @@
-#include <common.h>
+#include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <string.h>
@@ -25,15 +25,33 @@ static bool cmd_quit(char *args) {
     return true;
 }
 
+static bool cmd_si(char *args) {
+    uint64_t step;
+    if (!args || !(*args)) {
+        cpu_exec(1);
+        return true;
+    }
+    sscanf(args, "%" PRIu64 "", &step);
+    cpu_exec(step);
+    return true;
+}
+
+static bool cmd_c(char *args) {
+    cpu_exec(-1);
+    return true;
+}
+
 static sdb_cmd_t cmdtbl[] = {
     {"clear", "Clear the screen", cmd_clear},
     {"quit", "Quit SN Emu", cmd_quit},
+    {"si", "Single step", cmd_si},
+    {"c", "Continue", cmd_c},
     {"help", "Print help msg", cmd_help}
 };
 
 static bool cmd_help(char *args) {
     for (size_t i = 0; i < LENGTH(cmdtbl); i++) {
-        printf("name: %s\tdesc: %s\n", cmdtbl[i].name, cmdtbl[i].desc);
+        printf("%-6s %-10s\n", cmdtbl[i].name, cmdtbl[i].desc);
     }
     return true;
 }
@@ -93,7 +111,6 @@ static void sdb_main_session() {
 }
 
 void start_sdb() {
-    Log("Entering sdb session...");
     sdb_main_session();
 }
 
