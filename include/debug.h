@@ -15,4 +15,8 @@
   printf("\33[1;33m[WARN %s:%d %s] " format "\33[0m\n", \
       __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
+#define Error(format, ...) \
+  printf("\33[1;31m[ERROR %s:%d %s] " format "\33[0m\n", \
+      __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+
 #endif

@@ -1,6 +1,7 @@
 mainmenu "SEMU Configuration Menu"
 
 source "src/memory/Kconfig"
+source "src/device/Kconfig"
 
 menu "Build Options"
 choice

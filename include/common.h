@@ -12,8 +12,11 @@
 #include <macro.h>
 
 typedef uint32_t word_t;
+typedef int32_t sword_t;
+
 typedef word_t paddr_t;
 typedef paddr_t vaddr_t;
+typedef word_t ioaddr_t;
 
 #define PRIword PRIu32
 #define PRIaddr PRIx32

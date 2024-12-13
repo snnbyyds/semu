@@ -4,17 +4,12 @@
 
 static uint8_t memory[CONFIG_MSIZE] PG_ALIGN;
 
-static inline paddr_t check_guestaddr(paddr_t addr) {
-    assert(addr >= CONFIG_MBASE && addr < CONFIG_MBASE + CONFIG_MSIZE);
-    return addr;
-}
-
 void *guest_to_host(paddr_t addr) {
-    return memory + (check_guestaddr(addr) - CONFIG_MBASE);
+    return memory + (addr - CONFIG_MBASE);
 }
 
 paddr_t host_to_guest(const void *addr) {
-    return check_guestaddr(addr - (const void *)memory + CONFIG_MBASE);
+    return addr - (const void *)memory + CONFIG_MBASE;
 }
 
 word_t host_read(const haddr_t haddr, size_t len) {

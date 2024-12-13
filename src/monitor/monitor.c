@@ -1,5 +1,7 @@
 #include <cpu/cpu.h>
 #include <memory.h>
+#include <device/device.h>
+#include <device/mmio.h>
 #include <utils/state.h>
 #include <getopt.h>
 
@@ -60,9 +62,11 @@ static void load_image() {
 
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
-    load_image();
     SET_STATE(STOP);
     init_memory();
     init_cpu(image == NULL);
+    init_mmio();
+    init_device();
+    load_image();
     welcome();
 }

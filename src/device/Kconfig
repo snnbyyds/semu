@@ -1,0 +1,17 @@
+menu "Device Configurations"
+
+config MMIO_SPACE_SIZE
+  hex "IO Space Size"
+  default 0x2000000
+
+menuconfig HAS_SERIAL
+  bool "Enable serial"
+  default y
+
+if HAS_SERIAL
+config SERIAL_MMIO
+  hex "MMIO address of serial device"
+  default 0xa00003f8
+endif
+
+endmenu
