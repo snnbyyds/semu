@@ -18,4 +18,7 @@ typedef vaddr_t paddr_t;
 #define PRIword PRIu32
 #define PRIaddr PRIx32
 
+#define PGSIZE 4096
+#define PG_ALIGN __attribute((aligned(PGSIZE)))
+
 #endif

@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-static uint8_t memory[CONFIG_MSIZE];
+static uint8_t memory[CONFIG_MSIZE] PG_ALIGN;
 
 static inline paddr_t check_guestaddr(paddr_t addr) {
     assert(addr >= CONFIG_MBASE && addr < CONFIG_MBASE + CONFIG_MSIZE);
