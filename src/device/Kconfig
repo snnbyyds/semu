@@ -14,4 +14,14 @@ config SERIAL_MMIO
   default 0xa00003f8
 endif
 
+menuconfig HAS_TIMER
+  bool "Enable timer"
+  default y
+
+if HAS_TIMER
+config TIMER_MMIO
+  hex "MMIO address of timer device"
+  default 0xa0000048
+endif
+
 endmenu
