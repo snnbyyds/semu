@@ -6,10 +6,6 @@
 #include <utils/timer.h>
 #include <getopt.h>
 
-#ifndef VERSION
-#define VERSION 0.0
-#endif
-
 void init_cpu(bool img_builtin);
 void init_memory();
 void sdb_batchmode_on();
@@ -30,7 +26,7 @@ static void parse_args(int argc, char *argv[]) {
             break;
         }
         switch (opt) {
-            case 'v': printf("Version: %f\n", (float)VERSION); exit(EXIT_SUCCESS);
+            case 'v': printf("Version: %s\n", tostr(VERSION)); exit(EXIT_SUCCESS);
             case 'b': sdb_batchmode_on(); break;
             case 1: image = optarg; break;
             default:
@@ -45,7 +41,7 @@ static void parse_args(int argc, char *argv[]) {
 }
 
 static void welcome() {
-    printf("\033[35;47mWelcome to SEMU v%f!\033[0m\n", (float)VERSION);
+    printf("\033[35;47mWelcome to SEMU v%s!\033[0m\n", tostr(VERSION));
 #ifdef CONFIG_USE_GDBSTUB
     puts("Please connect GDB.");
 #else

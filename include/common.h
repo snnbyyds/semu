@@ -11,6 +11,10 @@
 #include <generated/autoconf.h>
 #include <macro.h>
 
+#ifndef VERSION
+#define VERSION 0.0
+#endif
+
 typedef uint32_t word_t;
 typedef int32_t sword_t;
 

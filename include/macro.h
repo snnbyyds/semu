@@ -4,6 +4,9 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+#define strtemp(x) #x
+#define tostr(x) strtemp(x)
+
 #define ROUNDUP(n, size)   ((((uintptr_t)n) + (size) - 1) & ~((size) - 1))
 #define ROUNDDOWN(n, size) ((((uintptr_t)n)) & ~((size) - 1))
 
