@@ -126,6 +126,7 @@ void sdb_batchmode_on() {
 void start_sdb() {
     if (batch_mode) {
         cmd_c(NULL);
+        return;
     }
     sdb_main_session();
 }
