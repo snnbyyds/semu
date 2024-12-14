@@ -46,7 +46,9 @@ word_t mmio_read(ioaddr_t addr, size_t len) {
     int mapidx = findmap(addr);
     assert(mapidx != -1);
     size_t offset = addr - maps[mapidx].low;
-    maps[mapidx].io_handler(MMIO_READ, offset, len);
+    if (maps[mapidx].io_handler) {
+        maps[mapidx].io_handler(MMIO_READ, offset, len);
+    }
     return host_read(maps[mapidx].space + offset, len);
 }
 
@@ -55,7 +57,9 @@ void mmio_write(ioaddr_t addr, size_t len, word_t data) {
     assert(mapidx != -1);
     size_t offset = addr - maps[mapidx].low;
     host_write(maps[mapidx].space + offset, len, data);
-    maps[mapidx].io_handler(MMIO_WRITE, offset, len);
+    if (maps[mapidx].io_handler) {
+        maps[mapidx].io_handler(MMIO_WRITE, offset, len);
+    }
 }
 
 void init_mmio() {
