@@ -1,0 +1,11 @@
+DIRS-BLACKLIST-y += src/monitor/gdbstub/repo/tests src/monitor/gdbstub/repo
+
+ifeq ($(CONFIG_USE_GDBSTUB),)
+SRCS-BLACKLIST-y += src/monitor/gdbstub/gdbstub.c
+else
+LIBGDBSTUB = src/monitor/gdbstub/repo/build/libgdbstub.a
+CFLAGS += -I src/monitor/gdbstub/repo/include -Wno-unused-variable
+src/monitor/gdbstub/gdbstub.c: $(LIBGDBSTUB)
+$(LIBGDBSTUB):
+	$(MAKE) -C src/monitor/gdbstub
+endif

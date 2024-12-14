@@ -45,7 +45,11 @@ static void parse_args(int argc, char *argv[]) {
 
 static void welcome() {
     printf("\033[35;47mWelcome to SEMU v%f!\033[0m\n", (float)VERSION);
+#ifdef CONFIG_USE_GDBSTUB
+    puts("Please connect GDB.");
+#else
     printf("Type '\033[32mhelp\033[0m' for help.\n");
+#endif
 }
 
 static void load_image() {

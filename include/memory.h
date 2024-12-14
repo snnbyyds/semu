@@ -3,6 +3,9 @@
 
 #include <common.h>
 
+#define IN_PMEM(ADDR) \
+    ((ADDR) >= CONFIG_MBASE && (ADDR) < CONFIG_MBASE + CONFIG_MSIZE)
+
 typedef void * haddr_t;
 
 void *guest_to_host(paddr_t addr);

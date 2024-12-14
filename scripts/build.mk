@@ -14,7 +14,7 @@ INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 OBJ_DIR  = $(BUILD_DIR)/obj-$(NAME)$(SO)
 BINARY   = $(BUILD_DIR)/$(NAME)$(SO)
 
-ARCHIVES =
+ARCHIVES = $(if $(CONFIG_USE_GDBSTUB),$(LIBGDBSTUB),)
 
 # Compilation flags
 ifeq ($(CC),clang)
