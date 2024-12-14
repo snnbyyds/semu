@@ -48,15 +48,16 @@ static inline void exec_inst(inst_type type, exec_t *info) {
     inst_t inst = info->inst;
 
 #define RULE_START if (0) { ; }
-#define RULE_END else { Warn("Match failed"); SET_STATE(ABORT); }
+#define RULE_END else { Error("Match failed at PC 0x%" PRIaddr "", PC); SET_STATE(ABORT); }
 
-#define RTYPE_RULE(NAME, _FUNCT7, _FUNCT3, _OPCODE, ...) else if (opcode == (_OPCODE) && funct3 == (_FUNCT3) && funct7 == (_FUNCT7)) { __VA_ARGS__ ; }
-#define ITYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)          else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ; }
-#define STYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)          else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ; }
-#define BTYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)          else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ;}
-#define UTYPE_RULE(NAME, _OPCODE, ...)                   else if (opcode == (_OPCODE)) { __VA_ARGS__ ; }
-#define JTYPE_RULE(NAME, _OPCODE, ...)                   else if (opcode == (_OPCODE)) { __VA_ARGS__ ; }
-#define NTYPE_RULE(NAME, _RAWINST, ...)                  else if (raw_inst == (_RAWINST)) { __VA_ARGS__ ; }
+#define RTYPE_RULE(NAME, _FUNCT7, _FUNCT3, _OPCODE, ...)          else if (opcode == (_OPCODE) && funct3 == (_FUNCT3) && funct7 == (_FUNCT7)) { __VA_ARGS__ ; }
+#define ITYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)                   else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ; }
+#define ITYPE_RULE_SHAMT(NAME, _INST31_26, _FUNCT3, _OPCODE, ...) else if (opcode == (_OPCODE) && funct3 == (_FUNCT3) && inst31_26 == (_INST31_26)) { __VA_ARGS__ ; }
+#define STYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)                   else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ; }
+#define BTYPE_RULE(NAME, _FUNCT3, _OPCODE, ...)                   else if (opcode == (_OPCODE) && funct3 == (_FUNCT3)) { __VA_ARGS__ ; }
+#define UTYPE_RULE(NAME, _OPCODE, ...)                            else if (opcode == (_OPCODE)) { __VA_ARGS__ ; }
+#define JTYPE_RULE(NAME, _OPCODE, ...)                            else if (opcode == (_OPCODE)) { __VA_ARGS__ ; }
+#define NTYPE_RULE(NAME, _RAWINST, ...)                           else if (raw_inst == (_RAWINST)) { __VA_ARGS__ ; }
 
 #define MATCH_RTYPE() \
     do { \
@@ -67,7 +68,23 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         rs1 __attribute__((unused)) = inst.R_type.rs1, \
         rs2 __attribute__((unused)) = inst.R_type.rs2; \
         RULE_START \
-        RTYPE_RULE("add", 0b0000000, 0b000, 0b0110011, R(rd) = R(rs1) + R(rs2)) \
+        RTYPE_RULE("add",   0b0000000, 0b000, 0b0110011, R(rd) = R(rs1) + R(rs2)) \
+        RTYPE_RULE("and",   0b0000000, 0b111, 0b0110011, R(rd) = R(rs1) & R(rs2)) \
+        RTYPE_RULE("div",   0b0000001, 0b100, 0b0110011, R(rd) = (sword_t)R(rs1) / (sword_t)R(rs2)) \
+        RTYPE_RULE("divu",  0b0000001, 0b101, 0b0110011, R(rd) = R(rs1) / R(rs2)) \
+        RTYPE_RULE("mul",   0b0000001, 0b000, 0b0110011, R(rd) = R(rs1) * R(rs2)) \
+        RTYPE_RULE("mulh",  0b0000001, 0b001, 0b0110011, R(rd) = (int64_t)(sword_t)R(rs1) * (int64_t)(sword_t)R(rs2) >> 32LL) \
+        RTYPE_RULE("mulhu", 0b0000001, 0b011, 0b0110011, R(rd) = (uint64_t)R(rs1) * (uint64_t)R(rs2) >> 32ULL) \
+        RTYPE_RULE("or",    0b0000000, 0b110, 0b0110011, R(rd) = R(rs1) | R(rs2)) \
+        RTYPE_RULE("rem",   0b0000001, 0b110, 0b0110011, R(rd) = (sword_t)R(rs1) % (sword_t)R(rs2)) \
+        RTYPE_RULE("remu",  0b0000001, 0b111, 0b0110011, R(rd) = R(rs1) % R(rs2)) \
+        RTYPE_RULE("sll",   0b0000000, 0b001, 0b0110011, R(rd) = R(rs1) << R(rs2)) \
+        RTYPE_RULE("slt",   0b0000000, 0b010, 0b0110011, R(rd) = (sword_t)R(rs1) < (sword_t)R(rs2)) \
+        RTYPE_RULE("sltu",  0b0000000, 0b011, 0b0110011, R(rd) = R(rs1) < R(rs2)) \
+        RTYPE_RULE("sra",   0b0100000, 0b101, 0b0110011, R(rd) = (sword_t)R(rs1) >> (R(rs2) & 0x1f)) \
+        RTYPE_RULE("srl",   0b0000000, 0b101, 0b0110011, R(rd) = R(rs1) >> (R(rs2) & 0x1f)) \
+        RTYPE_RULE("sub",   0b0100000, 0b000, 0b0110011, R(rd) = R(rs1) - R(rs2)) \
+        RTYPE_RULE("xor",   0b0000000, 0b100, 0b0110011, R(rd) = R(rs1) ^ R(rs2)) \
         RULE_END \
     } while (0)
 
@@ -78,8 +95,24 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         rd __attribute__((unused)) = inst.I_type.rd, \
         rs1 __attribute__((unused)) = inst.I_type.rs1; \
         word_t imm __attribute__((unused)) = SEXT(inst.I_type.imm, 12); \
+        uint32_t inst31_26 = (imm >> 6) & 0x3f; \
+        uint32_t shamt __attribute__((unused)) = imm & 0x3f;\
         RULE_START \
-        ITYPE_RULE("lbu", 0b100, 0b0000011, R(rd) = Mr(R(rs1) + imm, 1)) \
+        ITYPE_RULE(      "addi",           0b000, 0b0010011, R(rd) = R(rs1) + imm) \
+        ITYPE_RULE(      "andi",           0b111, 0b0010011, R(rd) = R(rs1) & imm) \
+        ITYPE_RULE(      "jalr",           0b000, 0b1100111, R(rd) = PC + 4, NPC = (R(rs1) + imm) & ~1) \
+        ITYPE_RULE(      "lb",             0b000, 0b0000011, R(rd) = SEXT(Mr(R(rs1) + imm, 1), 8)) \
+        ITYPE_RULE(      "lbu",            0b100, 0b0000011, R(rd) = Mr(R(rs1) + imm, 1)) \
+        ITYPE_RULE(      "lh",             0b001, 0b0000011, R(rd) = SEXT(Mr(R(rs1) + imm, 2), 16)) \
+        ITYPE_RULE(      "lhu",            0b101, 0b0000011, R(rd) = Mr(R(rs1) + imm, 2)) \
+        ITYPE_RULE(      "lw",             0b010, 0b0000011, R(rd) = Mr(R(rs1) + imm, 4)) \
+        ITYPE_RULE(      "ori",            0b110, 0b0010011, R(rd) = R(rs1) | imm) \
+        ITYPE_RULE(      "slti",           0b010, 0b0010011, R(rd) = (sword_t)R(rs1) < (sword_t)imm) \
+        ITYPE_RULE(      "sltiu",          0b011, 0b0010011, R(rd) = R(rs1) < imm) \
+        ITYPE_RULE(      "xori",           0b100, 0b0010011, R(rd) = R(rs1) ^ imm) \
+        ITYPE_RULE_SHAMT("slli", 0b000000, 0b001, 0b0010011, R(rd) = R(rs1) << shamt) \
+        ITYPE_RULE_SHAMT("srai", 0b010000, 0b101, 0b0010011, R(rd) = (sword_t)R(rs1) >> shamt) \
+        ITYPE_RULE_SHAMT("srli", 0b000000, 0b101, 0b0010011, R(rd) = R(rs1) >> shamt) \
         RULE_END \
     } while (0)
 
@@ -92,6 +125,8 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         word_t imm __attribute__((unused)) = (SEXT(inst.S_type.imm11_5, 7) << 5) | inst.S_type.imm4_0; \
         RULE_START \
         STYPE_RULE("sb", 0b000, 0b0100011, Mw(R(rs1) + imm, 1, R(rs2))) \
+        STYPE_RULE("sh", 0b001, 0b0100011, Mw(R(rs1) + imm, 2, R(rs2))) \
+        STYPE_RULE("sw", 0b010, 0b0100011, Mw(R(rs1) + imm, 4, R(rs2))) \
         RULE_END \
     } while (0)
 
@@ -103,7 +138,12 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         rs2 __attribute__((unused)) = inst.B_type.rs2; \
         word_t imm __attribute__((unused)) = SEXT(inst.B_type.imm12 << 12 | inst.B_type.imm11 << 11 | inst.B_type.imm10_5 << 5 | inst.B_type.imm4_1 << 1, 13); \
         RULE_START \
-        BTYPE_RULE("beq", 0b000, 0b1100011, if (R(rs1) == R(rs2)) NPC = PC + imm) \
+        BTYPE_RULE("beq",  0b000, 0b1100011, if (R(rs1) == R(rs2)) NPC = PC + imm) \
+        BTYPE_RULE("bge",  0b101, 0b1100011, if ((sword_t)R(rs1) >= (sword_t)R(rs2)) NPC = PC + imm) \
+        BTYPE_RULE("bgeu", 0b111, 0b1100011, if (R(rs1) >= R(rs2)) NPC = PC + imm) \
+        BTYPE_RULE("blt",  0b100, 0b1100011, if ((sword_t)R(rs1) < (sword_t)R(rs2)) NPC = PC + imm) \
+        BTYPE_RULE("bltu", 0b110, 0b1100011, if (R(rs1) < R(rs2)) NPC = PC + imm) \
+        BTYPE_RULE("bne",  0b001, 0b1100011, if (R(rs1) != R(rs2)) NPC = PC + imm) \
         RULE_END \
     } while (0)
 
@@ -114,6 +154,7 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         word_t imm __attribute__((unused)) = SEXT(inst.U_type.imm31_12, 20) << 12; \
         RULE_START \
         UTYPE_RULE("auipc", 0b0010111, R(rd) = PC + imm) \
+        UTYPE_RULE("lui",   0b0110111, R(rd) = imm) \
         RULE_END \
     } while (0)
 
@@ -158,7 +199,7 @@ static void inst_decode(exec_t *info) {
 void inst_exec_once(exec_t *info) {
     // Inst fetch
     info->inst = (inst_t)vaddr_read(info->snpc, sizeof(inst_t));
-    printf("exec: 0x%" PRIx32 "\n", *(uint32_t *)&info->inst);
+    printf("0x%08x : 0x%" PRIx32 "\n", info->snpc, *(uint32_t *)&info->inst);
     info->snpc += (vaddr_t)sizeof(inst_t);
     // Inst decode and exec
     inst_decode(info);
