@@ -35,7 +35,7 @@ void *add_iomap(ioaddr_t start, size_t size, io_handler_t handler) {
 
 static inline int findmap(ioaddr_t addr) {
     for (int i = 0; i < nr_maps; i++) {
-        if (addr >= maps[i].low && addr < maps[i].high) {
+        if (addr >= maps[i].low && addr <= maps[i].high) {
             return i;
         }
     }
