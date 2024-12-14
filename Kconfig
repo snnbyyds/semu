@@ -58,3 +58,4 @@ config CC_ASAN
 endmenu
 
 source "src/monitor/Kconfig"
+source "src/utils/trace/Kconfig"

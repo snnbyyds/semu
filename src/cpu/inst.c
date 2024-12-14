@@ -197,9 +197,10 @@ static void inst_decode(exec_t *info) {
 }
 
 void inst_exec_once(exec_t *info) {
+    extern void itrace(exec_t *info);
     // Inst fetch
     info->inst = (inst_t)vaddr_read(info->snpc, sizeof(inst_t));
-    printf("0x%08x : 0x%" PRIx32 "\n", info->snpc, *(uint32_t *)&info->inst);
+    itrace(info);
     info->snpc += (vaddr_t)sizeof(inst_t);
     // Inst decode and exec
     inst_decode(info);

@@ -1,0 +1,9 @@
+menuconfig ENABLE_TRACE
+  bool "Enable traces"
+  default n
+
+if ENABLE_TRACE
+config ENABLE_ITRACE
+  bool "Enable instruction trace"
+  default n
+endif
