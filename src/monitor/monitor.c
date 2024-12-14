@@ -3,6 +3,7 @@
 #include <device/device.h>
 #include <device/mmio.h>
 #include <utils/state.h>
+#include <utils/timer.h>
 #include <getopt.h>
 
 #ifndef VERSION
@@ -68,6 +69,7 @@ static void load_image() {
 }
 
 void init_monitor(int argc, char *argv[]) {
+    get_boot_time();
     parse_args(argc, argv);
     SET_STATE(STOP);
     init_memory();
