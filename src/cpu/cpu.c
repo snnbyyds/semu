@@ -43,7 +43,9 @@ void cpu_exec(uint64_t step) {
 
     for (uint64_t i = 0; i < step; i++) {
         exec_once();
-        update_device();
+        if (!(i & 0x1f)) { // Reduce overhead
+            update_device();
+        }
         if (semu_state.state != RUNNING) {
             break;
         }
