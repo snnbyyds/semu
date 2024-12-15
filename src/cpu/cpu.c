@@ -1,6 +1,7 @@
 #include <memory.h>
 #include <cpu/cpu.h>
 #include <cpu/inst.h>
+#include <cpu/reg.h>
 #include <device/device.h>
 #include <string.h>
 #include <utils/state.h>
@@ -28,6 +29,7 @@ static void exec_once() {
 void init_cpu(bool img_builtin) {
     memset(&cpu, 0, sizeof(cpu));
     cpu.pc = CONFIG_RESET_VECTOR;
+    csr(mstatus) = 0x1800;
     Log("CPU Initialized");
     if (img_builtin) {
         Log("Loading builtin image to 0x%" PRIx64 "...", (uint64_t)CONFIG_RESET_VECTOR);
