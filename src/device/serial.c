@@ -3,8 +3,8 @@
 uint8_t *serial_base = NULL;
 
 static void serial_io_handler(mmio_rw_t mmio_rw_op, size_t offset, size_t len) {
-    assert(len == 1 && offset == 0);
-    assert(serial_base);
+    Assert(len == 1 && offset == 0);
+    Assert(serial_base);
     if (mmio_rw_op == MMIO_WRITE) {
         putchar(*serial_base);
     } else {

@@ -19,4 +19,10 @@
   printf("\33[1;31m[ERROR %s:%d %s] " format "\33[0m\n", \
       __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
+#ifdef CONFIG_RUNTIME_CHECK
+#define Assert(cond) assert(cond)
+#else
+#define Assert(cond)
+#endif
+
 #endif

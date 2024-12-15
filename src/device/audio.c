@@ -66,7 +66,7 @@ static void audio_play() {
 }
 
 static void audio_io_handler(mmio_rw_t mmio_rw_op, size_t offset, size_t len) {
-    assert((offset & 0x3) == 0 && offset < sizeof(uint32_t) * nr_regs);
+    Assert((offset & 0x3) == 0 && offset < sizeof(uint32_t) * nr_regs);
     if (mmio_rw_op == MMIO_WRITE) {
         uint32_t reg_no = offset >> 2;
         switch (reg_no) {
@@ -82,7 +82,6 @@ void init_audio() {
 #define AUDIO_CTL_MMIO_SIZE (nr_regs * sizeof(uint32_t))
     audio_base = add_iomap(CONFIG_AUDIO_CTL_MMIO, AUDIO_CTL_MMIO_SIZE, audio_io_handler);
     sbuf = add_iomap(CONFIG_SB_ADDR, CONFIG_SB_SIZE, NULL);
-    SDL_InitSubSystem(SDL_INIT_AUDIO);
     memset(audio_base, 0, AUDIO_CTL_MMIO_SIZE);
     audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
 #undef AUDIO_CTL_MMIO_SIZE

@@ -57,5 +57,11 @@ config CC_ASAN
   default n
 endmenu
 
+menu "Run Options"
+config RUNTIME_CHECK
+  bool "Enable runtime check"
+  default y
+endmenu
+
 source "src/monitor/Kconfig"
 source "src/utils/trace/Kconfig"

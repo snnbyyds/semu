@@ -39,7 +39,7 @@ static inline inst_type get_inst_type(exec_t *info) {
             return J_type;
         default:
             Error("Unknown opcode 0x%" PRIx32 "", info->inst.opcode);
-            assert(0);
+            Assert(0);
     }
     return INVALID; // won't reach here
 }
@@ -173,7 +173,7 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         case U_type: MATCH_UTYPE(); break;
         case J_type: MATCH_JTYPE(); break;
         case N_type: MATCH_NTYPE(); break;
-        default: assert(0);
+        default: Assert(0);
     }
 
     R(0) = 0; // reset $zero

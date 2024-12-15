@@ -10,7 +10,7 @@ static void update_uptime() {
 }
 
 static void timer_io_handler(mmio_rw_t mmio_rw_op, size_t offset, size_t len) {
-    assert(offset >= 0 && offset <= 12 && !(offset & 0x3));
+    Assert(offset >= 0 && offset <= 12 && !(offset & 0x3));
     if (mmio_rw_op == MMIO_READ) {
         switch (offset) {
             case 4: update_uptime();
