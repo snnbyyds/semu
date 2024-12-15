@@ -6,10 +6,18 @@
 #include <assert.h>
 
 #define R(i) gpr(i)
+#define CSR(i) csr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
 #define PC info->pc
 #define NPC info->dnpc
+
+#define RAISE_INTR(NO, PC) \
+    ({ \
+        csr(mepc) = (PC); \
+        csr(mcause) = (NO); \
+        csr(mtvec); \
+    })
 
 typedef enum { R_type, I_type, S_type, B_type, U_type, J_type, N_type, INVALID } inst_type;
 
@@ -91,10 +99,13 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         rs1 __attribute__((unused)) = inst.I_type.rs1; \
         word_t imm __attribute__((unused)) = SEXT(inst.I_type.imm, 12); \
         uint32_t inst31_26 = (imm >> 6) & 0x3f; \
-        uint32_t shamt __attribute__((unused)) = imm & 0x3f;\
+        uint32_t shamt __attribute__((unused)) = imm & 0x3f; \
+        static word_t t; \
         RULE_START \
         ITYPE_RULE(      "addi",           0b000, 0b0010011, R(rd) = R(rs1) + imm) \
         ITYPE_RULE(      "andi",           0b111, 0b0010011, R(rd) = R(rs1) & imm) \
+        ITYPE_RULE(      "csrrs",          0b010, 0b1110011, t = CSR(imm), CSR(imm) = (t | R(rs1)), R(rd) = t) \
+        ITYPE_RULE(      "csrrw",          0b001, 0b1110011, t = CSR(imm), CSR(imm) = R(rs1), R(rd) = t) \
         ITYPE_RULE(      "jalr",           0b000, 0b1100111, R(rd) = PC + 4, NPC = (R(rs1) + imm) & ~1) \
         ITYPE_RULE(      "lb",             0b000, 0b0000011, R(rd) = SEXT(Mr(R(rs1) + imm, 1), 8)) \
         ITYPE_RULE(      "lbu",            0b100, 0b0000011, R(rd) = Mr(R(rs1) + imm, 1)) \
@@ -161,6 +172,8 @@ static inline void exec_inst(inst_type type, exec_t *info) {
     do { \
         uint32_t raw_inst = inst.raw_inst; \
         RULE_START \
+        NTYPE_RULE("mret",   0b00110000001000000000000001110011, NPC = CSR(mepc)) \
+        NTYPE_RULE("ecall",  0b00000000000000000000000001110011, NPC = RAISE_INTR(0xb, PC)) \
         NTYPE_RULE("ebreak", 0b00000000000100000000000001110011, SET_STATE(END)) \
         RULE_END \
     } while (0)
