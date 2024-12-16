@@ -53,8 +53,8 @@ void cpu_exec(uint64_t step) {
 
     switch (semu_state.state) {
         case RUNNING: SET_STATE(STOP); break;
-        case END: Log("Hit Good Trap"); break;
-        case ABORT: Warn("Hit Bad Trap"); break;
+        case END: Info("Hit Good Trap at PC 0x%08" PRIaddr "", semu_state.halt_pc); break;
+        case ABORT: Error("Hit Bad Trap at PC 0x%08" PRIaddr "", cpu.pc); break;
         case QUIT: break;
         default: break;
     }
