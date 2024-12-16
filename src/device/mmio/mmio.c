@@ -27,6 +27,12 @@ void *add_iomap(ioaddr_t start, size_t size, io_handler_t handler) {
     CHECK_OVERLAP(start);
     CHECK_OVERLAP(start + size);
     Assert(nr_maps < NR_maps);
+    for (size_t i = 0; i < nr_maps; i++) {
+        if ((start >= maps[i].low && start < maps[i].high) || (start + size >= maps[i].low && start + size <= maps[i].high)) {
+            Error("overlapped");
+            assert(0);
+        }
+    }
     void *ret = new_iospace(size);
     maps[nr_maps++] = (IOMap) { .low = start, .high = start + size - 1, .io_handler = handler, .space = ret };
     Log("Added mmio map at 0x%" PRIaddr "", start);
