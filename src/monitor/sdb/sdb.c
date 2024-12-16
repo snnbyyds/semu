@@ -2,6 +2,7 @@
 #include <cpu/reg.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <utils/snapshot.h>
 #include <string.h>
 
 typedef struct {
@@ -51,12 +52,32 @@ static bool cmd_info(char *args) {
     return true;
 }
 
+static bool cmd_save(char *args) {
+    if (!args || !(*args)) {
+        Warn("Invalid argument passed!");
+        return true;
+    }
+    save_snapshot(args);
+    return true;
+}
+
+static bool cmd_load(char *args) {
+    if (!args || !(*args)) {
+        Warn("Invalid argument passed!");
+        return true;
+    }
+    load_snapshot(args);
+    return true;
+}
+
 static sdb_cmd_t cmdtbl[] = {
     {"clear", "Clear the screen", cmd_clear},
     {"quit", "Quit SN Emu", cmd_quit},
     {"si", "Single step", cmd_si},
     {"c", "Continue", cmd_c},
     {"info", "Use 'info r' for reg vals", cmd_info},
+    {"save", "Save snapshot", cmd_save},
+    {"load", "Load snapshot", cmd_load},
     {"help", "Print help msg", cmd_help}
 };
 
