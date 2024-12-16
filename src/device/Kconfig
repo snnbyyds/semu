@@ -32,4 +32,18 @@ config KBD_MMIO
   default 0xa0000060
 endmenu
 
+menu "Audio"
+config AUDIO_CTL_MMIO
+  hex "MMIO address of audio controller"
+  default 0xa0000200
+
+config SB_ADDR
+  hex "MMIO address of sound buffer"
+  default 0xa1200000
+
+config SB_SIZE
+  hex "Size of sound buffer"
+  default 0x10000
+endmenu
+
 endmenu

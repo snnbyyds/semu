@@ -7,6 +7,7 @@ void init_serial();
 void init_timer();
 void init_vga();
 void init_keyboard();
+void init_audio();
 
 void update_screen();
 void send_keyboard_event(bool keydown, uint32_t keycode);
@@ -44,4 +45,5 @@ void init_device() {
     init_serial();
     init_vga();
     init_keyboard();
+    init_audio();
 }

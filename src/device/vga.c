@@ -13,7 +13,6 @@ static SDL_Renderer* renderer = NULL;
 static SDL_Texture *texture = NULL;
 
 static void init_screen() {
-    SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window = SDL_CreateWindow("SEMU ( CPL2024 Special release )", SCREEN_W * 3, SCREEN_H * 3, SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(window, NULL);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_TARGET | SDL_TEXTUREACCESS_STREAMING, SCREEN_W, SCREEN_H);
