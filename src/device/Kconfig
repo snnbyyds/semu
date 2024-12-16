@@ -29,7 +29,7 @@ endmenu
 menu "Keyboard"
 config KBD_MMIO
   hex "MMIO address of Keyboard device"
-  default 0xa0000060
+  default 0xa0000080
 endmenu
 
 menu "Audio"
