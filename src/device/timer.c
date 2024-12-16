@@ -15,11 +15,24 @@ static void update_uptime() {
     timer_base[1] = (uint32_t)(uptime >> 32);
 }
 
+static void update_rtc() {
+    time_t rawtime;
+    time(&rawtime);
+    struct tm *timeinfo = gmtime(&rawtime);
+    timer_base[2] = timeinfo->tm_sec;
+    timer_base[3] = timeinfo->tm_min;
+    timer_base[4] = timeinfo->tm_hour;
+    timer_base[5] = timeinfo->tm_mday;
+    timer_base[6] = timeinfo->tm_mon + 1;
+    timer_base[7] = timeinfo->tm_year + 1900;
+}
+
 static void timer_io_handler(mmio_rw_t mmio_rw_op, size_t offset, size_t len) {
-    Assert(offset >= 0 && offset <= 12 && !(offset & 0x3));
+    Assert(offset >= 0 && offset <= 28 && !(offset & 0x3));
     if (mmio_rw_op == MMIO_READ) {
         switch (offset) {
-            case 4: update_uptime();
+            case 4: update_uptime(); break;
+            case 8: update_rtc(); break;
             default: break;
         }
     }
@@ -62,7 +75,7 @@ void resume_timers() {
 }
 
 void init_timer() {
-    timer_base = add_iomap(CONFIG_TIMER_MMIO, 16, timer_io_handler);
+    timer_base = add_iomap(CONFIG_TIMER_MMIO, 32, timer_io_handler);
 
     memset(&evp, 0, sizeof(struct sigevent));
     memset(&it, 0, sizeof(struct itimerspec));
