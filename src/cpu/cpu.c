@@ -3,6 +3,7 @@
 #include <cpu/inst.h>
 #include <cpu/reg.h>
 #include <device/device.h>
+#include <device/timer.h>
 #include <string.h>
 #include <utils/state.h>
 
@@ -39,25 +40,23 @@ void init_cpu(bool img_builtin) {
 
 void cpu_exec(uint64_t step) {
     switch (semu_state.state) {
-        case END: case ABORT: case QUIT: printf("Program has ended. Please restart semu.\n"); return;
-        default: SET_STATE(RUNNING); break;
+        case END: case ABORT: case QUIT: stop_timers(); printf("Program has ended. Please restart semu.\n"); return;
+        default: SET_STATE(RUNNING); resume_timers(); break;
     }
 
     for (uint64_t i = 0; i < step; i++) {
         exec_once();
-        if (!(i & 0x1f)) { // Reduce overhead
-            update_device();
-        }
+        update_device();
         if (semu_state.state != RUNNING) {
             break;
         }
     }
 
     switch (semu_state.state) {
-        case RUNNING: SET_STATE(STOP); break;
-        case END: Info("Hit Good Trap at PC 0x%08" PRIaddr "", semu_state.halt_pc); break;
-        case ABORT: Error("Hit Bad Trap at PC 0x%08" PRIaddr "", cpu.pc); break;
-        case QUIT: break;
+        case RUNNING: SET_STATE(STOP); stop_timers(); break;
+        case END: Info("Hit Good Trap at PC 0x%08" PRIaddr "", semu_state.halt_pc); stop_timers(); break;
+        case ABORT: Error("Hit Bad Trap at PC 0x%08" PRIaddr "", cpu.pc); stop_timers(); break;
+        case QUIT: stop_timers(); break;
         default: break;
     }
 }

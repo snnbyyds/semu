@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_video.h>
 #include <device/mmio.h>
+#include <device/timer.h>
 #include <common.h>
 
 #define SCREEN_W 400
@@ -22,6 +23,7 @@ static void init_screen() {
 static void *fb = NULL;
 static uint32_t *vga_base = NULL;
 
+// This must be called on the main thread
 void update_screen() {
     if (vga_base[reg_sync]) {
         SDL_UpdateTexture(texture, NULL, fb, SCREEN_W * sizeof(uint32_t));
