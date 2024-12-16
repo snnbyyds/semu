@@ -18,7 +18,7 @@ static const uint32_t builtin_img[] = {
     0x00000000
 };
 
-static void exec_once() {
+static inline void exec_once() {
     step_counter++;
     // exec the inst
     extern void inst_exec_once(exec_t *);
@@ -46,6 +46,10 @@ void cpu_exec(uint64_t step) {
 
     for (uint64_t i = 0; i < step; i++) {
         exec_once();
+        word_t intr = QUERY_INTR();
+        if (intr != INTR_EMPTY) {
+            cpu.pc = RAISE_INTR(intr, cpu.pc);
+        }
         update_device();
         if (semu_state.state != RUNNING) {
             break;

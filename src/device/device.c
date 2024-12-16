@@ -14,6 +14,8 @@ void init_audio();
 void send_keyboard_event(bool keydown, uint32_t keycode);
 void update_screen();
 
+void init_timer_intr();
+
 static atomic_bool update_device_signal = false;
 
 // Called in timer thread
@@ -53,6 +55,8 @@ void init_device() {
     init_vga();
     init_keyboard();
     init_audio();
+
+    init_timer_intr();
 
     // Add the timer callback for device updates
     add_timer_exec(request_device_update);

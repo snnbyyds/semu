@@ -12,13 +12,6 @@
 #define PC info->pc
 #define NPC info->dnpc
 
-#define RAISE_INTR(NO, PC) \
-    ({ \
-        csr(mepc) = (PC); \
-        csr(mcause) = (NO); \
-        csr(mtvec); \
-    })
-
 typedef enum { R_type, I_type, S_type, B_type, U_type, J_type, N_type, INVALID } inst_type;
 
 static inline inst_type get_inst_type(exec_t *info) {
@@ -172,7 +165,7 @@ static inline void exec_inst(inst_type type, exec_t *info) {
     do { \
         uint32_t raw_inst = inst.raw_inst; \
         RULE_START \
-        NTYPE_RULE("mret",   0b00110000001000000000000001110011, NPC = CSR(mepc)) \
+        NTYPE_RULE("mret",   0b00110000001000000000000001110011, NPC = CSR(mepc); WRITE_CSR(mstatus, MIE, READ_CSR(mstatus, MPIE)); WRITE_CSR(mstatus, MPIE, 1)) \
         NTYPE_RULE("ecall",  0b00000000000000000000000001110011, NPC = RAISE_INTR(0xb, PC)) \
         NTYPE_RULE("ebreak", 0b00000000000100000000000001110011, SET_STATE(END)) \
         RULE_END \

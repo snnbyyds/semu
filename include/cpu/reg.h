@@ -6,6 +6,9 @@
 #define gpr(i) cpu.gpr[i]
 #define csr(i) cpu.csr[i]
 
+#define READ_CSR(NAME, BIT) ((*(CSR_Decode *)&csr(NAME)).NAME.BIT)
+#define WRITE_CSR(NAME, BIT, DATA) ({ ((*(CSR_Decode *)&csr(NAME)).NAME.BIT) = DATA; })
+
 typedef enum {
     satp     = 0x180,
     mstatus  = 0x300,
