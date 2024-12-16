@@ -9,5 +9,6 @@ int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
     init_monitor(argc, argv);
     start_debugger();
+    SDL_Quit();
     return is_good_exit_state() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
