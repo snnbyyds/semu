@@ -41,6 +41,14 @@ static void parse_args(int argc, char *argv[]) {
 }
 
 static void welcome() {
+    puts("\033[1;34;47m   _____ ______ __  __ _    _    \033[0m");
+    puts("\033[1;34;47m   / ____|  ____|  \\/  | |  | |  \033[0m");
+    puts("\033[1;34;47m  | (___ | |__  | \\  / | |  | |  \033[0m");
+    puts("\033[1;34;47m   \\___ \\|  __| | |\\/| | |  | |  \033[0m");
+    puts("\033[1;34;47m   ____) | |____| |  | | |__| |  \033[0m");
+    puts("\033[1;34;47m  |_____/|______|_|  |_|\\____/   \033[0m");
+    puts("\033[1;34;47m                                 \033[0m");
+    putchar('\n');
     printf("\033[35;47mWelcome to SEMU v%s!\033[0m\n", tostr(VERSION));
 #ifdef CONFIG_USE_GDBSTUB
     puts("Please connect GDB.");
