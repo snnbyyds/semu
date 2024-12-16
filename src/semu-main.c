@@ -1,4 +1,6 @@
 #include <utils/state.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 void init_monitor(int argc, char *argv[]);
 void start_debugger();

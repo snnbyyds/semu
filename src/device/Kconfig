@@ -4,24 +4,26 @@ config MMIO_SPACE_SIZE
   hex "IO Space Size"
   default 0x2000000
 
-menuconfig HAS_SERIAL
-  bool "Enable serial"
-  default y
-
-if HAS_SERIAL
+menu "Serial"
 config SERIAL_MMIO
   hex "MMIO address of serial device"
   default 0xa00003f8
-endif
+endmenu
 
-menuconfig HAS_TIMER
-  bool "Enable timer"
-  default y
-
-if HAS_TIMER
+menu "Timer"
 config TIMER_MMIO
   hex "MMIO address of timer device"
   default 0xa0000048
-endif
+endmenu
+
+menu "VGA"
+config VGA_MMIO
+  hex "MMIO address of VGA controller"
+  default 0xa0000100
+
+config FB_ADDR
+  hex "MMIO address of framebuffer"
+  default 0xa1000000
+endmenu
 
 endmenu

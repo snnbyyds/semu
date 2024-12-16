@@ -1,6 +1,7 @@
 #include <memory.h>
 #include <cpu/cpu.h>
 #include <cpu/inst.h>
+#include <device/device.h>
 #include <string.h>
 #include <utils/state.h>
 
@@ -42,6 +43,7 @@ void cpu_exec(uint64_t step) {
 
     for (uint64_t i = 0; i < step; i++) {
         exec_once();
+        update_device();
         if (semu_state.state != RUNNING) {
             break;
         }
