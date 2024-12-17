@@ -8,5 +8,6 @@
 
 void init_device();
 void update_device();
+void close_device();
 
 #endif

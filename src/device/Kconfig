@@ -46,4 +46,18 @@ config SB_SIZE
   default 0x10000
 endmenu
 
+menu "DISK"
+config DISK_CTL_MMIO
+  hex "MMIO address of the disk controller"
+  default 0xa0000300
+
+config DISK_BLK_SZ
+  hex "Size of disk blk"
+  default 0x200
+
+config DB_ADDR
+  hex "MMIO address of the disk blk buffer"
+  default 0xa1300000
+endmenu
+
 endmenu
