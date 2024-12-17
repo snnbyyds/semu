@@ -85,7 +85,7 @@ void add_timer_exec(void (*subhandler)(void)) {
 
 void stop_timers() {
     memset(&it, 0, sizeof(struct itimerspec));
-    Log("Stopped timers status: %d", timer_settime(timerid, 0, &it, NULL));
+    timer_settime(timerid, 0, &it, NULL);
 }
 
 void resume_timers() {
@@ -93,7 +93,7 @@ void resume_timers() {
     it.it_value.tv_nsec = 1000000000 / TIMER_HZ;
     it.it_interval.tv_sec = 0;
     it.it_interval.tv_nsec = 1000000000 / TIMER_HZ;
-    Log("Resume timers status: %d", timer_settime(timerid, 0, &it, NULL));
+    timer_settime(timerid, 0, &it, NULL);
 }
 
 void init_timer() {
