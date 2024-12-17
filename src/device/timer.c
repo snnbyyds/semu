@@ -2,6 +2,7 @@
 #include <device/mmio.h>
 #include <device/timer.h>
 #include <utils/timer.h>
+#include <sys/time.h>
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
@@ -9,22 +10,43 @@
 
 static uint32_t *timer_base = NULL;
 
+enum {
+    reg_uptime_lo,
+    reg_uptime_hi,
+    reg_rtc_sec,
+    reg_rtc_min,
+    reg_rtc_hour,
+    reg_rtc_mday,
+    reg_rtc_mon,
+    reg_rtc_year,
+    reg_epoch_usec,
+    reg_epoch_sec_lo,
+    reg_epoch_sec_hi,
+    nr_regs
+};
+
 static void update_uptime() {
     uint64_t uptime = get_uptime();
-    timer_base[0] = (uint32_t)uptime;
-    timer_base[1] = (uint32_t)(uptime >> 32);
+    timer_base[reg_uptime_lo] = (uint32_t)uptime;
+    timer_base[reg_uptime_hi] = (uint32_t)(uptime >> 32);
 }
 
 static void update_rtc() {
     time_t rawtime;
     time(&rawtime);
     struct tm *timeinfo = gmtime(&rawtime);
-    timer_base[2] = timeinfo->tm_sec;
-    timer_base[3] = timeinfo->tm_min;
-    timer_base[4] = timeinfo->tm_hour;
-    timer_base[5] = timeinfo->tm_mday;
-    timer_base[6] = timeinfo->tm_mon + 1;
-    timer_base[7] = timeinfo->tm_year + 1900;
+    timer_base[reg_rtc_sec] = timeinfo->tm_sec;
+    timer_base[reg_rtc_min] = timeinfo->tm_min;
+    timer_base[reg_rtc_hour] = timeinfo->tm_hour;
+    timer_base[reg_rtc_mday] = timeinfo->tm_mday;
+    timer_base[reg_rtc_mon] = timeinfo->tm_mon + 1;
+    timer_base[reg_rtc_year] = timeinfo->tm_year + 1900;
+
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    timer_base[reg_epoch_usec] = (uint32_t)now.tv_usec;
+    timer_base[reg_epoch_sec_lo] = (uint32_t)now.tv_sec;
+    timer_base[reg_epoch_sec_hi] = (uint32_t)(now.tv_sec >> 32);
 }
 
 static void timer_io_handler(mmio_rw_t mmio_rw_op, size_t offset, size_t len) {
@@ -75,7 +97,7 @@ void resume_timers() {
 }
 
 void init_timer() {
-    timer_base = add_iomap(CONFIG_TIMER_MMIO, 32, timer_io_handler);
+    timer_base = add_iomap(CONFIG_TIMER_MMIO, 44, timer_io_handler);
 
     memset(&evp, 0, sizeof(struct sigevent));
     memset(&it, 0, sizeof(struct itimerspec));
