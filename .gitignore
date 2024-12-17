@@ -9,5 +9,6 @@
 !*.sh
 !README.md
 !Kconfig
+!resource/placeholder
 include/config
 include/generated

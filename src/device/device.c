@@ -10,6 +10,9 @@ void init_timer();
 void init_vga();
 void init_keyboard();
 void init_audio();
+void init_disk();
+
+void close_disk();
 
 void send_keyboard_event(bool keydown, uint32_t keycode);
 void update_screen();
@@ -53,7 +56,13 @@ void init_device() {
     init_vga();
     init_keyboard();
     init_audio();
+    init_disk();
 
     // Add the timer callback for device updates
     add_timer_exec(request_device_update);
+}
+
+void close_device() {
+    close_disk();
+    SDL_Quit();
 }
