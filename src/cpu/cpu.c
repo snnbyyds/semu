@@ -9,7 +9,6 @@
 
 CPU_State cpu = {};
 
-static uint64_t step_counter = 0;
 static const uint32_t builtin_img[] = {
     0x00000297, // auipc t0,0
     0x00028823, // sb  zero,16(t0)
@@ -19,7 +18,6 @@ static const uint32_t builtin_img[] = {
 };
 
 static inline void exec_once() {
-    step_counter++;
     // exec the inst
     extern void inst_exec_once(exec_t *);
     exec_t exec_info = { .snpc = cpu.pc, .pc = cpu.pc };
