@@ -5,6 +5,7 @@
 #include <stdatomic.h>
 #include <SDL3/SDL.h>
 
+// Device init functions
 void init_serial();
 void init_timer();
 void init_vga();
@@ -12,11 +13,14 @@ void init_keyboard();
 void init_audio();
 void init_disk();
 
+// Disk close
 void close_disk();
 
-void send_keyboard_event(bool keydown, uint32_t keycode);
+// Device update functions
+void fetch_keyboard_status();
 void update_screen();
 
+// intr timer init
 void init_timer_intr();
 
 static atomic_bool update_device_signal = false;
@@ -31,24 +35,8 @@ void update_device() {
     if (!atomic_load_explicit(&update_device_signal, memory_order_relaxed)) {
         return;
     }
+    fetch_keyboard_status();
     update_screen();
-    static SDL_Event event;
-    if (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_EVENT_KEY_DOWN:
-                send_keyboard_event(true, event.key.scancode);
-                break;
-            case SDL_EVENT_KEY_UP:
-                send_keyboard_event(false, event.key.scancode);
-                break;
-            case SDL_EVENT_QUIT:
-                Log("Received SDL quit event!");
-                SET_STATE(QUIT);
-                break;
-            default:
-                break;
-        }
-    }
     atomic_store_explicit(&update_device_signal, false, memory_order_relaxed);
 }
 
