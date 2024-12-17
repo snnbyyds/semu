@@ -69,8 +69,14 @@ static void (*subhandlerpool[NR_TIMERS_MAX])(void);
 static size_t nr_timers = 0;
 
 static void timer_thread(union sigval v) {
+    extern uint64_t running_seconds;
+    static uint64_t triggers = 0;
     for (int i = 0; i < nr_timers; i++) {
         subhandlerpool[i]();
+    }
+    triggers++;
+    if (triggers % TIMER_HZ == 0) {
+        running_seconds++;
     }
 }
 
