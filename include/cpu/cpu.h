@@ -2,12 +2,15 @@
 #define __CPU_H__
 
 #include <common.h>
-#include "reg.h"
+
+#define IRQ_TIMER 0x80000007
+#define INTR_EMPTY -1
 
 typedef struct {
     word_t gpr[32];
     word_t csr[4096];
     vaddr_t pc;
+    bool intr;
 } CPU_State;
 
 extern CPU_State cpu;

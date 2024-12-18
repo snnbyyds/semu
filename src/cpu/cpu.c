@@ -28,6 +28,15 @@ static const uint32_t builtin_img[] = {
 };
 
 __attribute__((always_inline))
+static inline word_t query_intr() {
+    if (((CSR_Decode)csr(mstatus)).mstatus.MIE && cpu.intr) {
+        cpu.intr = false;
+        return IRQ_TIMER;
+    }
+    return INTR_EMPTY;
+}
+
+__attribute__((always_inline))
 static inline void exec_once() {
     // exec the inst
     extern void inst_exec_once(exec_t *);
@@ -44,6 +53,10 @@ static void *cpu_exec_thread(void *arg) {
         exec_once();
         if (semu_state.state != RUNNING) {
             break;
+        }
+        word_t intr = query_intr();
+        if (intr != INTR_EMPTY) {
+            cpu.pc = raise_intr(intr, cpu.pc);
         }
     }
     step_count += i;
@@ -74,6 +87,10 @@ static void halt_cpu() {
 
 __attribute__((always_inline))
 word_t raise_intr(word_t NO, vaddr_t epc) {
+    // Put the CPU to interrupt-disable state first
+    (*(CSR_Decode *)&csr(mstatus)).mstatus.MPIE = (*(CSR_Decode *)&csr(mstatus)).mstatus.MIE;
+    (*(CSR_Decode *)&csr(mstatus)).mstatus.MIE = 0;
+
     csr(mepc) = epc;
     csr(mcause) = NO;
     return csr(mtvec);

@@ -169,7 +169,7 @@ static inline void exec_inst(inst_type type, exec_t *info) {
         RULE_START \
         NTYPE_RULE("ebreak", 0b00000000000100000000000001110011, SET_STATE(END)) \
         NTYPE_RULE("ecall",  0b00000000000000000000000001110011, NPC = raise_intr(0xb, PC)) \
-        NTYPE_RULE("mret",   0b00110000001000000000000001110011, NPC = CSR(mepc)) \
+        NTYPE_RULE("mret",   0b00110000001000000000000001110011, NPC = CSR(mepc), (*(CSR_Decode *)&csr(mstatus)).mstatus.MIE = (*(CSR_Decode *)&csr(mstatus)).mstatus.MPIE, (*(CSR_Decode *)&csr(mstatus)).mstatus.MPIE = 1) \
         RULE_END \
     } while (0)
 
