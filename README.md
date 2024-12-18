@@ -53,16 +53,21 @@ make run IMG=/path/fceux-mario.bin
 #### expression calculation
 * expression calculator (NOT implemented)
 
+#### difftest
+* difftest with NEMU (NOT implemented)
+
 ### CPU Simulation `src/cpu`
 * Common RV32IM instructions (`src/cpu/inst.c`)
-* GPRs and CSRs
+* GPRs
+* CSRs (WIP)
 * Fetch, decode, execute cycle (`src/cpu/cpu.c`)
+* Basic privileged ISA (WIP)
 
 ( TODO: Make it running even FASTER )
 
 ### Memory Simulation `src/memory`
 * Basic read and write operations
-* RV32 Sv32 paging (`include/memory.h`, WIP)
+* RV32 Sv32 paging (WIP)
 * TLB simulation (NOT implemented)
 * MMIO `src/device/mmio`
 
