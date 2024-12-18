@@ -1,6 +1,7 @@
 #include <memory.h>
 #include <cpu/cpu.h>
 #include <cpu/inst.h>
+#include <cpu/reg.h>
 #include <device/device.h>
 #include <device/timer.h>
 #include <errno.h>
@@ -74,6 +75,7 @@ static void halt_cpu() {
 void init_cpu(bool img_builtin) {
     memset(&cpu, 0, sizeof(cpu));
     cpu.pc = CONFIG_RESET_VECTOR;
+    csr(mstatus) = 0x1800;
 
     // Set up thread
     pthread_attr_init(&attr);
