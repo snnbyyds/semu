@@ -3,12 +3,17 @@
 #include <cpu/inst.h>
 #include <device/device.h>
 #include <device/timer.h>
+#include <errno.h>
 #include <string.h>
 #include <utils/state.h>
 
+#define __USE_GNU
+#include <pthread.h>
+
 CPU_State cpu = {};
 
-static uint64_t step_counter = 0;
+static pthread_t thread_cpu_exec;
+
 static const uint32_t builtin_img[] = {
     0x00000297, // auipc t0,0
     0x00028823, // sb  zero,16(t0)
@@ -17,13 +22,37 @@ static const uint32_t builtin_img[] = {
     0x00000000
 };
 
-static void exec_once() {
-    step_counter++;
+static inline void exec_once() {
     // exec the inst
     extern void inst_exec_once(exec_t *);
     exec_t exec_info = { .snpc = cpu.pc, .pc = cpu.pc };
     inst_exec_once(&exec_info);
     cpu.pc = exec_info.dnpc;
+}
+
+// cpu_exec in child thread, arg as the step
+static void *cpu_exec_thread(void *arg) {
+    uint64_t step = (uint64_t)arg;
+    for (uint64_t i = 0; i < step; i++) {
+        exec_once();
+        if (semu_state.state != RUNNING) {
+            break;
+        }
+    }
+    return NULL;
+}
+
+static void start_cpu_exec_thread(uint64_t nr_exec) {
+    if (pthread_create(&thread_cpu_exec, NULL, cpu_exec_thread, (void *)nr_exec)) {
+        Error("Failed to create cpu_exec thread!");
+        assert(0);
+    }
+}
+
+static void wait_cpu_exec_thread() {
+    while (pthread_tryjoin_np(thread_cpu_exec, NULL) == EBUSY) {
+        update_device();
+    }
 }
 
 void init_cpu(bool img_builtin) {
@@ -42,13 +71,8 @@ void cpu_exec(uint64_t step) {
         default: SET_STATE(RUNNING); resume_timers(); break;
     }
 
-    for (uint64_t i = 0; i < step; i++) {
-        exec_once();
-        update_device();
-        if (semu_state.state != RUNNING) {
-            break;
-        }
-    }
+    start_cpu_exec_thread(step);
+    wait_cpu_exec_thread();
 
     switch (semu_state.state) {
         case RUNNING: SET_STATE(STOP); stop_timers(); break;
