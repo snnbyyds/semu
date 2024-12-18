@@ -4,6 +4,7 @@
 #include <common.h>
 
 #define gpr(i) cpu.gpr[i]
+#define csr(i) cpu.csr[i]
 
 void reg_val_display();
 
