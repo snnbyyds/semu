@@ -26,6 +26,7 @@ static const uint32_t builtin_img[] = {
     0x00000000
 };
 
+__attribute__((always_inline))
 static inline void exec_once() {
     // exec the inst
     extern void inst_exec_once(exec_t *);
