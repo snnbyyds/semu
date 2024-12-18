@@ -21,6 +21,7 @@ Clone the repository and set up the environment:
 git clone <repository-url>
 cd semu
 . scripts/envsetup.sh
+make menuconfig
 make
 ```
 
