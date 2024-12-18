@@ -50,10 +50,30 @@ static inline uint32_t pop_keyevent() {
     return ret;
 }
 
-void send_keyboard_event(bool keydown, uint32_t sdl_keycode) {
+static void send_keyboard_event(bool keydown, uint32_t sdl_keycode) {
     SEMU_KEYCODE semu_keycode = SEMU_KEYCODE(sdl_keycode);
     if (semu_state.state == RUNNING && semu_keycode != SEMU_KEY_NONE) {
         push_keyevent(SEMU_KEYEVENT(semu_keycode, keydown));
+    }
+}
+
+void fetch_keyboard_status() {
+    static SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_EVENT_KEY_DOWN:
+                send_keyboard_event(true, event.key.scancode);
+                break;
+            case SDL_EVENT_KEY_UP:
+                send_keyboard_event(false, event.key.scancode);
+                break;
+            case SDL_EVENT_QUIT:
+                Log("Received SDL quit event!");
+                SET_STATE(QUIT);
+                break;
+            default:
+                break;
+        }
     }
 }
 

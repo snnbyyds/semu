@@ -14,7 +14,7 @@ void init_disk();
 
 void close_disk();
 
-void send_keyboard_event(bool keydown, uint32_t keycode);
+void fetch_keyboard_status();
 void update_screen();
 
 static atomic_bool update_device_signal = false;
@@ -30,23 +30,7 @@ void update_device() {
         return;
     }
     update_screen();
-    static SDL_Event event;
-    if (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_EVENT_KEY_DOWN:
-                send_keyboard_event(true, event.key.scancode);
-                break;
-            case SDL_EVENT_KEY_UP:
-                send_keyboard_event(false, event.key.scancode);
-                break;
-            case SDL_EVENT_QUIT:
-                Log("Received SDL quit event!");
-                SET_STATE(QUIT);
-                break;
-            default:
-                break;
-        }
-    }
+    fetch_keyboard_status();
     atomic_store_explicit(&update_device_signal, false, memory_order_relaxed);
 }
 
