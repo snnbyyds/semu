@@ -10,5 +10,6 @@
 !README.md
 !Kconfig
 !resource/placeholder
+!assets/*
 include/config
 include/generated
