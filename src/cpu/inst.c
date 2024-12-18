@@ -13,6 +13,7 @@
 
 typedef enum { R_type, I_type, S_type, B_type, U_type, J_type, N_type, INVALID } inst_type;
 
+__attribute__((always_inline))
 static inline inst_type get_inst_type(exec_t *info) {
     if (info->inst.raw_inst == 0b00000000000100000000000001110011 ||
         info->inst.raw_inst == 0b00000000000000000000000001110011 ||
@@ -44,6 +45,7 @@ static inline inst_type get_inst_type(exec_t *info) {
     return INVALID; // won't reach here
 }
 
+__attribute__((always_inline))
 static inline void exec_inst(inst_type type, exec_t *info) {
     inst_t inst = info->inst;
 
@@ -179,12 +181,14 @@ static inline void exec_inst(inst_type type, exec_t *info) {
     R(0) = 0; // reset $zero
 }
 
-static void inst_decode(exec_t *info) {
+__attribute__((always_inline))
+static inline void inst_decode(exec_t *info) {
     info->dnpc = info->snpc;
     inst_type type = get_inst_type(info);
     exec_inst(type, info);
 }
 
+__attribute__((always_inline))
 void inst_exec_once(exec_t *info) {
     extern void itrace(exec_t *info);
     // Inst fetch

@@ -4,14 +4,17 @@
 
 static uint8_t memory[CONFIG_MSIZE] PG_ALIGN;
 
+__attribute__((always_inline))
 void *guest_to_host(paddr_t addr) {
     return memory + (addr - CONFIG_MBASE);
 }
 
+__attribute__((always_inline))
 paddr_t host_to_guest(const void *addr) {
     return addr - (const void *)memory + CONFIG_MBASE;
 }
 
+__attribute__((always_inline))
 word_t host_read(const haddr_t haddr, size_t len) {
     switch (len) {
         case 1: return *(const uint8_t *)haddr;
@@ -22,6 +25,7 @@ word_t host_read(const haddr_t haddr, size_t len) {
     return -1;
 }
 
+__attribute__((always_inline))
 void host_write(haddr_t haddr, size_t len, word_t data) {
     switch (len) {
         case 1: *(uint8_t *)haddr = (uint8_t)data; break;

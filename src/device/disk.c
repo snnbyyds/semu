@@ -47,7 +47,8 @@ static inline void get_disksize() {
     }
 }
 
-static void disk_read() {
+__attribute__((always_inline))
+static inline void disk_read() {
     if (!disk_present) {
         return;
     }
@@ -60,7 +61,8 @@ static void disk_read() {
     disk_base[reg_ready] = true;
 }
 
-static void disk_write() {
+__attribute__((always_inline))
+static inline void disk_write() {
     if (!disk_present) {
         return;
     }
@@ -78,7 +80,7 @@ static void disk_io_handler(mmio_rw_t mmio_rw_op, size_t offset, size_t len) {
     if (mmio_rw_op == MMIO_WRITE) {
         uint32_t reg_no = offset >> 2;
         switch (reg_no) {
-            case reg_cmd: (disk_base[reg_cmd] ? disk_write : disk_read)(); break;
+            case reg_cmd: disk_base[reg_cmd] ? disk_write() : disk_read(); break;
             case reg_blkno: received_blkno = true; CHECK_BLKNO(disk_base[reg_no]); break;
             default: Warn("Unexpeted write!"); break;
         }
