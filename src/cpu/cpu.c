@@ -11,10 +11,12 @@
 #include <pthread.h>
 
 CPU_State cpu = {};
+uint64_t running_seconds = 0;
 
 static pthread_t thread_cpu_exec;
 static pthread_attr_t attr;
 static struct sched_param param;
+static uint64_t step_count = 0;
 
 static const uint32_t builtin_img[] = {
     0x00000297, // auipc t0,0
@@ -35,12 +37,14 @@ static inline void exec_once() {
 // cpu_exec in child thread, arg as the step
 static void *cpu_exec_thread(void *arg) {
     uint64_t step = (uint64_t)arg;
-    for (uint64_t i = 0; i < step; i++) {
+    uint64_t i = 0;
+    for (; i < step; i++) {
         exec_once();
         if (semu_state.state != RUNNING) {
             break;
         }
     }
+    step_count += i;
     return NULL;
 }
 
@@ -60,6 +64,10 @@ static void wait_cpu_exec_thread() {
 static void halt_cpu() {
     stop_timers();
     pthread_attr_destroy(&attr);
+    Info("%" PRIu64 " inst simulated", step_count);
+    if (running_seconds > 4) {
+        Info("Simulation Speed: %" PRIu64 " inst/s", step_count / running_seconds);
+    }
 }
 
 void init_cpu(bool img_builtin) {
