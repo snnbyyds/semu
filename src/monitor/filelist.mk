@@ -1,4 +1,6 @@
-DIRS-BLACKLIST-y += src/monitor/gdbstub/repo/tests src/monitor/gdbstub/repo
+ifneq ($(wildcard repo/include/gdbstub.h),)
+	DIRS-BLACKLIST-y += src/monitor/gdbstub/repo/tests src/monitor/gdbstub/repo
+endif
 
 ifeq ($(CONFIG_USE_GDBSTUB),)
 SRCS-BLACKLIST-y += src/monitor/gdbstub/gdbstub.c
