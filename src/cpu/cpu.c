@@ -72,6 +72,13 @@ static void halt_cpu() {
     }
 }
 
+__attribute__((always_inline))
+word_t raise_intr(word_t NO, vaddr_t epc) {
+    csr(mepc) = epc;
+    csr(mcause) = NO;
+    return csr(mtvec);
+}
+
 void init_cpu(bool img_builtin) {
     memset(&cpu, 0, sizeof(cpu));
     cpu.pc = CONFIG_RESET_VECTOR;
