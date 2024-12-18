@@ -40,7 +40,7 @@
   Offsets in the header are specified in bytes relative to the start of the file.
 */
 
-#define FILE_VERSION 1
+#define FILE_VERSION 2
 #define MAGIC 0x50414e53554d4553ULL
 
 /* Definition of the Semusnapshot header structure */
