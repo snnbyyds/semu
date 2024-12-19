@@ -81,6 +81,8 @@ void init_cpu(bool img_builtin) {
     param.sched_priority = sched_get_priority_max(SCHED_RR);
     pthread_attr_setschedparam(&attr, &param);
     Log("Use SCHED_RR for cpu_exec_thread %p", cpu_exec_thread);
+    
+    init_inst_pool();
     Log("CPU Initialized!");
 
     // Load builtin image

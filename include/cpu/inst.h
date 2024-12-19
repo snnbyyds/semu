@@ -5,7 +5,7 @@
 
 typedef union __attribute__((packed)) {
     uint32_t raw_inst;
-    struct { uint32_t opcode : 7, raw_data : 25; };
+    struct { uint32_t opcode : 7, inst_11_7 : 5, funct3 : 3, inst_24_15 : 10, funct7 : 7; };
     // Decode schemes
     struct { uint32_t opcode : 7, rd : 5, funct3 : 3, rs1 : 5, rs2 : 5, funct7 : 7; } R_type;
     struct { uint32_t opcode : 7, rd : 5, funct3 : 3, rs1 : 5, imm : 12; } I_type;
@@ -19,7 +19,8 @@ typedef struct {
     vaddr_t pc;
     vaddr_t snpc; // Static next PC
     vaddr_t dnpc; // Dynamic next PC
-    inst_t inst;
 } exec_t;
+
+void init_inst_pool();
 
 #endif
