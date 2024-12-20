@@ -21,6 +21,18 @@ Clone the repository and set up the environment:
 git clone <repository-url>
 cd semu
 . scripts/envsetup.sh
+```
+Generate `.config`:
+
+```
+make perf_defconfig
+```
+or
+```
+make menuconfig
+```
+Build:
+```
 make
 ```
 

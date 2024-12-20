@@ -11,5 +11,6 @@
 !Kconfig
 !resource/placeholder
 !assets/*
+!configs/*
 include/config
 include/generated
