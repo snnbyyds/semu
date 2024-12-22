@@ -3,23 +3,90 @@
 
 #include <common.h>
 
-typedef union __attribute__((packed)) {
-    uint32_t raw_inst;
-    struct { uint32_t opcode : 7, inst_11_7 : 5, funct3 : 3, inst_24_15 : 10, funct7 : 7; };
-    // Decode schemes
-    struct { uint32_t opcode : 7, rd : 5, funct3 : 3, rs1 : 5, rs2 : 5, funct7 : 7; } R_type;
-    struct { uint32_t opcode : 7, rd : 5, funct3 : 3, rs1 : 5, imm : 12; } I_type;
-    struct { uint32_t opcode : 7, imm4_0 : 5, funct3 : 3, rs1 : 5, rs2 : 5, imm11_5 : 7; } S_type;
-    struct { uint32_t opcode : 7, imm11 : 1, imm4_1 : 4, funct3 : 3, rs1 : 5, rs2 : 5, imm10_5 : 6, imm12 : 1; } B_type;
-    struct { uint32_t opcode : 7, rd : 5, imm31_12 : 20; } U_type;
-    struct { uint32_t opcode : 7, rd : 5, imm19_12 : 8, imm11 : 1, imm10_1 : 10, imm20 : 1; } J_type;
-} inst_t;
-
 typedef struct {
     vaddr_t pc;
     vaddr_t snpc; // Static next PC
     vaddr_t dnpc; // Dynamic next PC
 } exec_t;
+
+// Instruction decode masks
+enum {
+    // Shared
+    OPCODE       = 0b00000000000000000000000001111111,
+    FUNCT3       = 0b00000000000000000111000000000000,
+    FUNCT7       = 0b11111110000000000000000000000000,
+    RD           = 0b00000000000000000000111110000000,
+    RS1          = 0b00000000000011111000000000000000,
+    RS2          = 0b00000001111100000000000000000000,
+
+    // R_type
+
+    // I_type
+    FI_IMM       = 0b11111111111100000000000000000000,
+
+    // S_type
+    FS_IMM_4_0   = 0b00000000000000000000111110000000,
+    FS_IMM_11_5  = 0b11111110000000000000000000000000,
+
+    // B_type
+    FB_IMM_11    = 0b00000000000000000000000010000000,
+    FB_IMM_4_1   = 0b00000000000000000000111100000000,
+    FB_IMM_10_5  = 0b01111110000000000000000000000000,
+    FB_IMM_12    = 0b10000000000000000000000000000000,
+
+    // U_type
+    FU_IMM_31_12 = 0b11111111111111111111000000000000,
+
+    // J_type
+    FJ_IMM_19_12 = 0b00000000000011111111000000000000,
+    FJ_IMM_11    = 0b00000000000100000000000000000000,
+    FJ_IMM_10_1  = 0b01111111111000000000000000000000,
+    FJ_IMM_20    = 0b10000000000000000000000000000000,
+};
+
+static inline uint32_t decode_opcode(uint32_t inst) {
+    return inst & OPCODE;
+}
+
+static inline uint32_t decode_rd(uint32_t inst) {
+    return (inst & RD) >> 7;
+}
+
+static inline uint32_t decode_rs1(uint32_t inst) {
+    return (inst & RS1) >> 15;
+}
+
+static inline uint32_t decode_rs2(uint32_t inst) {
+    return (inst & RS2) >> 20;
+}
+
+static inline uint32_t decode_funct3(uint32_t inst) {
+    return (inst & FUNCT3) >> 12;
+}
+
+static inline uint32_t decode_funct7(uint32_t inst) {
+    return (inst & FUNCT7) >> 25;
+}
+
+static inline int32_t decode_immI(uint32_t inst) {
+    return ((int32_t)(inst & FI_IMM)) >> 20;
+}
+
+static inline int32_t decode_immS(uint32_t inst) {
+    return (int32_t)((inst & FS_IMM_11_5) | ((inst & FS_IMM_4_0) << 13)) >> 20;
+}
+
+static inline int32_t decode_immB(uint32_t inst) {
+    return (int32_t)((inst & FB_IMM_12) | ((inst & FB_IMM_11) << 23) | ((inst & FB_IMM_10_5) >> 1) | ((inst & FB_IMM_4_1) << 12)) >> 19;
+}
+
+static inline int32_t decode_immU(uint32_t inst) {
+    return inst & FU_IMM_31_12;
+}
+
+static inline int32_t decode_immJ(uint32_t inst) {
+    return (int32_t)((inst & FJ_IMM_20) | ((inst & FJ_IMM_19_12) << 11) | ((inst & FJ_IMM_11) << 2) | ((inst & FJ_IMM_10_1) >> 9)) >> 11;
+}
 
 void init_inst_pool();
 

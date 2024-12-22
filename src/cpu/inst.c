@@ -7,10 +7,16 @@
 #include <assert.h>
 
 #define R(i) gpr(i)
+
 #define Mr vaddr_read
 #define Mw vaddr_write
+
 #define PC _info->pc
 #define NPC _info->dnpc
+
+#define rd decode_rd(inst)
+#define rs1 decode_rs1(inst)
+#define rs2 decode_rs2(inst)
 
 typedef struct {
     void (*handler)();
@@ -27,43 +33,14 @@ typedef struct {
 } opcode_item;
 
 static opcode_item pool[0x80];
-static inst_t inst;
+static uint32_t inst;
 static exec_t *_info = NULL;
 
-#define DECODE_R() \
-    uint32_t rd __attribute__((unused)) = inst.R_type.rd, \
-    rs1 __attribute__((unused)) = inst.R_type.rs1, \
-    rs2 __attribute__((unused)) = inst.R_type.rs2;
-
-#define DECODE_I() \
-    uint32_t rd __attribute__((unused)) = inst.I_type.rd, \
-    rs1 __attribute__((unused)) = inst.I_type.rs1; \
-    word_t imm __attribute__((unused)) = SEXT(inst.I_type.imm, 12); \
-    uint32_t inst31_26 __attribute__((unused)) = (imm >> 6) & 0x3f; \
-    uint32_t shamt __attribute__((unused)) = imm & 0x3f;
-
-#define DECODE_S() \
-    uint32_t rs1 __attribute__((unused)) = inst.S_type.rs1, \
-    rs2 __attribute__((unused)) = inst.S_type.rs2; \
-    word_t imm __attribute__((unused)) = (SEXT(inst.S_type.imm11_5, 7) << 5) | inst.S_type.imm4_0; 
-
-#define DECODE_B() \
-    uint32_t rs1 __attribute__((unused)) = inst.B_type.rs1, \
-    rs2 __attribute__((unused)) = inst.B_type.rs2; \
-    word_t imm __attribute__((unused)) = SEXT(inst.B_type.imm12 << 12 | inst.B_type.imm11 << 11 | inst.B_type.imm10_5 << 5 | inst.B_type.imm4_1 << 1, 13);
-
-#define DECODE_U() \
-    uint32_t rd __attribute__((unused)) = inst.U_type.rd; \
-    word_t imm __attribute__((unused)) = SEXT(inst.U_type.imm31_12, 20) << 12; 
-
-#define DECODE_J() \
-    uint32_t rd __attribute__((unused)) = inst.J_type.rd; \
-    word_t imm __attribute__((unused)) = SEXT(inst.J_type.imm20 << 20 | inst.J_type.imm19_12 << 12 | inst.J_type.imm11 << 11 | inst.J_type.imm10_1 << 1, 21);
+#define IMM(TYPE) decode_imm ## TYPE(inst)
 
 #define INST_EXEC(NAME, TYPE, ...) \
     static void __ ## NAME() { \
-        DECODE_ ## TYPE(); \
-        __VA_ARGS__ ; \
+        __VA_ARGS__; \
     }
 
 #define _____ -1
@@ -84,7 +61,7 @@ static exec_t *_info = NULL;
 
 // special handler for ones that can be matched with raw inst...
 static inline void __special_handler() {
-    switch (inst.raw_inst) {
+    switch (inst) {
         case 0b00000000000100000000000001110011: SET_STATE(END); break; // ebreak
         default: break;
     }
@@ -107,34 +84,34 @@ INST_EXEC(sra,    R, R(rd) = (sword_t)R(rs1) >> (R(rs2) & 0x1f))
 INST_EXEC(srl,    R, R(rd) = R(rs1) >> (R(rs2) & 0x1f))
 INST_EXEC(sub,    R, R(rd) = R(rs1) - R(rs2))
 INST_EXEC(xor,    R, R(rd) = R(rs1) ^ R(rs2))
-INST_EXEC(addi,   I, R(rd) = R(rs1) + imm)
-INST_EXEC(andi,   I, R(rd) = R(rs1) & imm)
+INST_EXEC(addi,   I, R(rd) = R(rs1) + IMM(I))
+INST_EXEC(andi,   I, R(rd) = R(rs1) & IMM(I))
 INST_EXEC(ebreak, I, __special_handler())
-INST_EXEC(jalr,   I, R(rd) = PC + 4, NPC = (R(rs1) + imm) & ~1)
-INST_EXEC(lb,     I, R(rd) = SEXT(Mr(R(rs1) + imm, 1), 8))
-INST_EXEC(lbu,    I, R(rd) = Mr(R(rs1) + imm, 1))
-INST_EXEC(lh,     I, R(rd) = SEXT(Mr(R(rs1) + imm, 2), 16))
-INST_EXEC(lhu,    I, R(rd) = Mr(R(rs1) + imm, 2))
-INST_EXEC(lw,     I, R(rd) = Mr(R(rs1) + imm, 4))
-INST_EXEC(ori,    I, R(rd) = R(rs1) | imm)
-INST_EXEC(slli,   I, R(rd) = R(rs1) << shamt)
-INST_EXEC(slti,   I, R(rd) = (sword_t)R(rs1) < (sword_t)imm)
-INST_EXEC(sltiu,  I, R(rd) = R(rs1) < imm)
-INST_EXEC(srai,   I, R(rd) = (sword_t)R(rs1) >> shamt)
-INST_EXEC(srli,   I, R(rd) = R(rs1) >> shamt)
-INST_EXEC(xori,   I, R(rd) = R(rs1) ^ imm)
-INST_EXEC(sb,     S, Mw(R(rs1) + imm, 1, R(rs2)))
-INST_EXEC(sh,     S, Mw(R(rs1) + imm, 2, R(rs2)))
-INST_EXEC(sw,     S, Mw(R(rs1) + imm, 4, R(rs2)))
-INST_EXEC(beq,    B, if (R(rs1) == R(rs2)) NPC = PC + imm)
-INST_EXEC(bge,    B, if ((sword_t)R(rs1) >= (sword_t)R(rs2)) NPC = PC + imm)
-INST_EXEC(bgeu,   B, if (R(rs1) >= R(rs2)) NPC = PC + imm)
-INST_EXEC(blt,    B, if ((sword_t)R(rs1) < (sword_t)R(rs2)) NPC = PC + imm)
-INST_EXEC(bltu,   B, if (R(rs1) < R(rs2)) NPC = PC + imm)
-INST_EXEC(bne,    B, if (R(rs1) != R(rs2)) NPC = PC + imm)
-INST_EXEC(auipc,  U, R(rd) = PC + imm)
-INST_EXEC(lui,    U, R(rd) = imm)
-INST_EXEC(jal,    J, R(rd) = PC + 4, NPC = PC + imm)
+INST_EXEC(jalr,   I, R(rd) = PC + 4, NPC = (R(rs1) + IMM(I)) & ~1)
+INST_EXEC(lb,     I, R(rd) = SEXT(Mr(R(rs1) + IMM(I), 1), 8))
+INST_EXEC(lbu,    I, R(rd) = Mr(R(rs1) + IMM(I), 1))
+INST_EXEC(lh,     I, R(rd) = SEXT(Mr(R(rs1) + IMM(I), 2), 16))
+INST_EXEC(lhu,    I, R(rd) = Mr(R(rs1) + IMM(I), 2))
+INST_EXEC(lw,     I, R(rd) = Mr(R(rs1) + IMM(I), 4))
+INST_EXEC(ori,    I, R(rd) = R(rs1) | IMM(I))
+INST_EXEC(slli,   I, R(rd) = R(rs1) << (IMM(I) & 0x3f))
+INST_EXEC(slti,   I, R(rd) = (sword_t)R(rs1) < (sword_t)IMM(I))
+INST_EXEC(sltiu,  I, R(rd) = R(rs1) < IMM(I))
+INST_EXEC(srai,   I, R(rd) = (sword_t)R(rs1) >> (IMM(I) & 0x3f))
+INST_EXEC(srli,   I, R(rd) = R(rs1) >> (IMM(I) & 0x3f))
+INST_EXEC(xori,   I, R(rd) = R(rs1) ^ IMM(I))
+INST_EXEC(sb,     S, Mw(R(rs1) + IMM(S), 1, R(rs2)))
+INST_EXEC(sh,     S, Mw(R(rs1) + IMM(S), 2, R(rs2)))
+INST_EXEC(sw,     S, Mw(R(rs1) + IMM(S), 4, R(rs2)))
+INST_EXEC(beq,    B, if (R(rs1) == R(rs2)) NPC = PC + IMM(B))
+INST_EXEC(bge,    B, if ((sword_t)R(rs1) >= (sword_t)R(rs2)) NPC = PC + IMM(B))
+INST_EXEC(bgeu,   B, if (R(rs1) >= R(rs2)) NPC = PC + IMM(B))
+INST_EXEC(blt,    B, if ((sword_t)R(rs1) < (sword_t)R(rs2)) NPC = PC + IMM(B))
+INST_EXEC(bltu,   B, if (R(rs1) < R(rs2)) NPC = PC + IMM(B))
+INST_EXEC(bne,    B, if (R(rs1) != R(rs2)) NPC = PC + IMM(B))
+INST_EXEC(auipc,  U, R(rd) = PC + IMM(U))
+INST_EXEC(lui,    U, R(rd) = IMM(U))
+INST_EXEC(jal,    J, R(rd) = PC + 4, NPC = PC + IMM(J))
 
 void init_inst_pool() {
     memset(pool, 0, sizeof(pool));
@@ -186,18 +163,25 @@ void init_inst_pool() {
     RULE(jal,    J, _________, _____, 0b1101111);
 }
 
+static uint32_t opcode = 0;
+static uint32_t funct3 = 0;
+static uint32_t funct7 = 0;
+
 __attribute__((always_inline))
 static inline void exec_inst() {
-    if (pool[inst.opcode].funct3_pool[inst.funct3].handler) {
-        pool[inst.opcode].funct3_pool[inst.funct3].handler();
-    } else if (pool[inst.opcode].funct3_pool[inst.funct3].funct7_pool[inst.funct7].handler) {
-        pool[inst.opcode].funct3_pool[inst.funct3].funct7_pool[inst.funct7].handler();
-    } else if (pool[inst.opcode].handler) {
-        pool[inst.opcode].handler();
-    } else if (pool[inst.opcode].funct3_pool[inst.funct3].funct7_pool[inst.funct7 >> 1].handler) {
-        pool[inst.opcode].funct3_pool[inst.funct3].funct7_pool[inst.funct7 >> 1].handler();
+    opcode = decode_opcode(inst);
+    funct3 = decode_funct3(inst);
+    funct7 = decode_funct7(inst);
+    if (pool[opcode].funct3_pool[funct3].handler) {
+        pool[opcode].funct3_pool[funct3].handler();
+    } else if (pool[opcode].funct3_pool[funct3].funct7_pool[funct7].handler) {
+        pool[opcode].funct3_pool[funct3].funct7_pool[funct7].handler();
+    } else if (pool[opcode].handler) {
+        pool[opcode].handler();
+    } else if (pool[opcode].funct3_pool[funct3].funct7_pool[funct7 >> 1].handler) {
+        pool[opcode].funct3_pool[funct3].funct7_pool[funct7 >> 1].handler();
     } else {
-        Error("Failed to exec inst 0x%" PRIx32 " at PC 0x%" PRIaddr "", inst.raw_inst, cpu.pc);
+        Error("Failed to exec inst 0x%" PRIx32 " at PC 0x%" PRIaddr "", inst, cpu.pc);
         SET_STATE(ABORT);
     }
     R(0) = 0; // reset $zero
@@ -208,10 +192,10 @@ void inst_exec_once(exec_t *info) {
     extern void itrace(exec_t *info);
 
     // Inst fetch
-    inst = (inst_t)vaddr_read(info->snpc, sizeof(inst_t));
+    inst = vaddr_read(info->snpc, sizeof(uint32_t));
 
     itrace(info);
-    info->snpc += (vaddr_t)sizeof(inst_t);
+    info->snpc += (vaddr_t)sizeof(uint32_t);
     _info = info;
     _info->dnpc = _info->snpc;
 
