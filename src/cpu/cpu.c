@@ -3,19 +3,20 @@
 #include <cpu/inst.h>
 #include <device/device.h>
 #include <device/timer.h>
-#include <errno.h>
+#include <pthread.h>
 #include <string.h>
 #include <utils/state.h>
-
-#define __USE_GNU
-#include <pthread.h>
 
 CPU_State cpu = {};
 uint64_t running_seconds = 0;
 
 static pthread_t thread_cpu_exec;
 static pthread_attr_t attr;
+static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static struct sched_param param;
+static volatile bool cpu_thread_finished = true;
+
 static uint64_t step_count = 0;
 
 static const uint32_t builtin_img[] = {
@@ -46,20 +47,31 @@ static void *cpu_exec_thread(void *arg) {
         }
     }
     step_count += i;
+
+    pthread_mutex_lock(&mutex);
+    cpu_thread_finished = true;
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
     return NULL;
 }
 
 static void start_cpu_exec_thread(uint64_t nr_exec) {
+    cpu_thread_finished = false;
     if (pthread_create(&thread_cpu_exec, &attr, cpu_exec_thread, (void *)nr_exec)) {
+        cpu_thread_finished = true;
         Error("Failed to create cpu_exec thread!");
         assert(0);
     }
 }
 
 static void wait_cpu_exec_thread() {
-    while (pthread_tryjoin_np(thread_cpu_exec, NULL) == EBUSY) {
+    pthread_mutex_lock(&mutex);
+    while (!cpu_thread_finished) {
         update_device();
+        pthread_cond_wait(&cond, &mutex);
     }
+    pthread_mutex_unlock(&mutex);
+    pthread_join(thread_cpu_exec, NULL);
 }
 
 static void halt_cpu() {
