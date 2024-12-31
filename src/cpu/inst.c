@@ -169,17 +169,18 @@ static uint32_t funct7 = 0;
 
 __attribute__((always_inline))
 static inline void exec_inst() {
+    void (*handler)() = NULL;
     opcode = decode_opcode(inst);
     funct3 = decode_funct3(inst);
     funct7 = decode_funct7(inst);
-    if (pool[opcode].funct3_pool[funct3].handler) {
-        pool[opcode].funct3_pool[funct3].handler();
-    } else if (pool[opcode].funct3_pool[funct3].funct7_pool[funct7].handler) {
-        pool[opcode].funct3_pool[funct3].funct7_pool[funct7].handler();
-    } else if (pool[opcode].handler) {
-        pool[opcode].handler();
-    } else if (pool[opcode].funct3_pool[funct3].funct7_pool[funct7 >> 1].handler) {
-        pool[opcode].funct3_pool[funct3].funct7_pool[funct7 >> 1].handler();
+    if ((handler = pool[opcode].funct3_pool[funct3].handler)) {
+        handler();
+    } else if ((handler = pool[opcode].funct3_pool[funct3].funct7_pool[funct7].handler)) {
+        handler();
+    } else if ((handler = pool[opcode].handler)) {
+        handler();
+    } else if ((handler = pool[opcode].funct3_pool[funct3].funct7_pool[funct7 >> 1].handler)) {
+        handler();
     } else {
         Error("Failed to exec inst 0x%" PRIx32 " at PC 0x%" PRIaddr "", inst, cpu.pc);
         SET_STATE(ABORT);
