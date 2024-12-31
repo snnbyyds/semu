@@ -33,7 +33,7 @@ static bool cmd_si(char *args) {
         cpu_exec(1);
         return true;
     }
-    sscanf(args, "%" PRIu64 "", &step);
+    sscanf(args, "%" SCNu64 "", &step);
     cpu_exec(step);
     return true;
 }
