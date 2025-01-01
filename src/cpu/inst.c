@@ -190,12 +190,12 @@ static inline void exec_inst() {
 
 __attribute__((always_inline))
 void inst_exec_once(exec_t *info) {
-    extern void itrace(exec_t *info);
+    extern void itrace(exec_t *info, uint32_t inst);
 
     // Inst fetch
     inst = vaddr_read(info->snpc, sizeof(uint32_t));
 
-    itrace(info);
+    itrace(info, inst);
     info->snpc += (vaddr_t)sizeof(uint32_t);
     _info = info;
     _info->dnpc = _info->snpc;
