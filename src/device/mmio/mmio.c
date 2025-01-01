@@ -62,7 +62,6 @@ static inline int findmap(ioaddr_t addr) {
     return -1;
 }
 
-__attribute__((always_inline))
 word_t mmio_read(ioaddr_t addr, size_t len) {
     int mapidx = findmap(addr);
     Assert(mapidx != -1);
@@ -73,7 +72,6 @@ word_t mmio_read(ioaddr_t addr, size_t len) {
     return host_read(maps[mapidx].space + offset, len);
 }
 
-__attribute__((always_inline))
 void mmio_write(ioaddr_t addr, size_t len, word_t data) {
     int mapidx = findmap(addr);
     Assert(mapidx != -1);

@@ -188,7 +188,6 @@ static inline void exec_inst() {
     R(0) = 0; // reset $zero
 }
 
-__attribute__((always_inline))
 void inst_exec_once(exec_t *info) {
     extern void itrace(exec_t *info, uint32_t inst);
 

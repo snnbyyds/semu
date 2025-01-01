@@ -25,7 +25,6 @@ static void request_device_update() {
 }
 
 // This must be called on the main thread
-__attribute__((always_inline))
 void update_device() {
     if (!atomic_load_explicit(&update_device_signal, memory_order_relaxed)) {
         return;
