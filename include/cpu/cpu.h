@@ -3,9 +3,12 @@
 
 #include <common.h>
 
+#define NR_GPR 32
+#define NR_CSR 4096
+
 typedef struct {
-    word_t gpr[32];
-    word_t csr[4096];
+    word_t csr[NR_CSR];
+    word_t gpr[NR_GPR];
     vaddr_t pc;
 } CPU_State;
 
