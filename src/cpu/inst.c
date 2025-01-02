@@ -71,6 +71,9 @@ static inline void __special_handler() {
         case 0b00000000000000000000000001110011: // ecall
             NPC = isa_raise_intr(0xb, PC);
             break;
+        case 0b00110000001000000000000001110011: // mret
+            NPC = CSR(MEPC);
+            break;
         default:
             assert(0);
     }
@@ -80,6 +83,7 @@ INST_EXEC(add,    R, R(rd) = R(rs1) + R(rs2))
 INST_EXEC(and,    R, R(rd) = R(rs1) & R(rs2))
 INST_EXEC(div,    R, R(rd) = (sword_t)R(rs1) / (sword_t)R(rs2))
 INST_EXEC(divu,   R, R(rd) = R(rs1) / R(rs2))
+INST_EXEC(mret,   R, __special_handler())
 INST_EXEC(mul,    R, R(rd) = R(rs1) * R(rs2))
 INST_EXEC(mulh,   R, R(rd) = (int64_t)(sword_t)R(rs1) * (int64_t)(sword_t)R(rs2) >> 32LL)
 INST_EXEC(mulhu,  R, R(rd) = (uint64_t)R(rs1) * (uint64_t)R(rs2) >> 32ULL)
@@ -132,6 +136,7 @@ void init_inst_pool() {
     RULE(and,    R, 0b0000000, 0b111, 0b0110011);
     RULE(div,    R, 0b0000001, 0b100, 0b0110011);
     RULE(divu,   R, 0b0000001, 0b101, 0b0110011);
+    RULE(mret,   R, 0b0011000, 0b000, 0b1110011);
     RULE(mul,    R, 0b0000001, 0b000, 0b0110011);
     RULE(mulh,   R, 0b0000001, 0b001, 0b0110011);
     RULE(mulhu,  R, 0b0000001, 0b011, 0b0110011);
