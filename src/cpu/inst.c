@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #define R(i) gpr(i)
+#define CSR(i) csr(i)
 
 #define Mr vaddr_read
 #define Mw vaddr_write
@@ -61,9 +62,17 @@ static exec_t *_info = NULL;
 
 // special handler for ones that can be matched with raw inst...
 static inline void __special_handler() {
+    extern word_t isa_raise_intr(word_t no, vaddr_t epc);
+
     switch (inst) {
-        case 0b00000000000100000000000001110011: SET_STATE(END); break; // ebreak
-        default: break;
+        case 0b00000000000100000000000001110011: // ebreak
+            SET_STATE(END);
+            break;
+        case 0b00000000000000000000000001110011: // ecall
+            NPC = isa_raise_intr(0xb, PC);
+            break;
+        default:
+            assert(0);
     }
 }
 
@@ -86,7 +95,10 @@ INST_EXEC(sub,    R, R(rd) = R(rs1) - R(rs2))
 INST_EXEC(xor,    R, R(rd) = R(rs1) ^ R(rs2))
 INST_EXEC(addi,   I, R(rd) = R(rs1) + IMM(I))
 INST_EXEC(andi,   I, R(rd) = R(rs1) & IMM(I))
+INST_EXEC(csrrs,  I, word_t imm = IMM(I); word_t t = CSR(imm); CSR(imm) = t | R(rs1); R(rd) = t)
+INST_EXEC(csrrw,  I, word_t imm = IMM(I); word_t t = CSR(imm); CSR(imm) = R(rs1); R(rd) = t)
 INST_EXEC(ebreak, I, __special_handler())
+INST_EXEC(ecall,  I, __special_handler())
 INST_EXEC(jalr,   I, R(rd) = PC + 4, NPC = (R(rs1) + IMM(I)) & ~1)
 INST_EXEC(lb,     I, R(rd) = SEXT(Mr(R(rs1) + IMM(I), 1), 8))
 INST_EXEC(lbu,    I, R(rd) = Mr(R(rs1) + IMM(I), 1))
@@ -135,7 +147,10 @@ void init_inst_pool() {
     RULE(xor,    R, 0b0000000, 0b100, 0b0110011);
     RULE(addi,   I, _________, 0b000, 0b0010011);
     RULE(andi,   I, _________, 0b111, 0b0010011);
+    RULE(csrrs,  I, _________, 0b010, 0b1110011);
+    RULE(csrrw,  I, _________, 0b001, 0b1110011);
     RULE(ebreak, I, 0b0000000, 0b000, 0b1110011);
+    RULE(ecall,  I, 0b0000000, 0b000, 0b1110011);
     RULE(jalr,   I, _________, 0b000, 0b1100111);
     RULE(lb,     I, _________, 0b000, 0b0000011);
     RULE(lbu,    I, _________, 0b100, 0b0000011);
