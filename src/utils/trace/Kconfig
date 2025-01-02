@@ -6,4 +6,8 @@ if ENABLE_TRACE
 config ENABLE_ITRACE
   bool "Enable instruction trace"
   default n
+
+config ENABLE_ETRACE
+  bool "Enable etrace"
+  default n
 endif
