@@ -74,6 +74,7 @@ static void halt_cpu() {
 void init_cpu(bool img_builtin) {
     memset(&cpu, 0, sizeof(cpu));
     cpu.pc = CONFIG_RESET_VECTOR;
+    cpu.csr[MSTATUS] = 0x1800;
 
     // Set up thread
     pthread_attr_init(&attr);
