@@ -66,7 +66,7 @@ static inline void __special_handler() {
 
     switch (inst) {
         case 0b00000000000100000000000001110011: // ebreak
-            SET_STATE(END);
+            SET_STATE(gpr(10) ? ABORT : END);
             break;
         case 0b00000000000000000000000001110011: // ecall
             NPC = isa_raise_intr(0xb, PC);
