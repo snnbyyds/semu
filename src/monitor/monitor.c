@@ -50,6 +50,7 @@ static void welcome() {
     puts("\033[1;34;47m                                 \033[0m");
     putchar('\n');
     printf("\033[35;47mWelcome to SEMU v%s!\033[0m\n", tostr(VERSION));
+    printf("Build time: %s, %s\n", __TIME__, __DATE__);
 #ifdef CONFIG_USE_GDBSTUB
     puts("Please connect GDB.");
 #else
