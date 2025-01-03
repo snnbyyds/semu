@@ -61,6 +61,7 @@ static void difftest_sync_image() {
 
 static void difftest_sync_context() {
     ref_difftest_regcpy(&cpu, to_ref);
+    ref_difftest_memcpy(CONFIG_MBASE, guest_to_host(CONFIG_MBASE), CONFIG_MSIZE, to_ref);
 }
 
 static bool difftest_check_reg() {
