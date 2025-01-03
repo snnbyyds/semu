@@ -7,6 +7,7 @@
 #include <getopt.h>
 
 void init_cpu(bool img_builtin);
+void init_disasm();
 void init_memory();
 void sdb_batchmode_on();
 
@@ -82,5 +83,8 @@ void init_monitor(int argc, char *argv[]) {
     init_mmio();
     init_device();
     load_image();
+#ifdef CONFIG_ENABLE_ITRACE
+    init_disasm();
+#endif
     welcome();
 }

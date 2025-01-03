@@ -3,6 +3,9 @@
 
 void itrace(exec_t *info, uint32_t inst) {
 #ifdef CONFIG_ENABLE_ITRACE
-    printf("0x%08" PRIaddr " : 0x%08" PRIx32 "\n", info->snpc, inst);
+    extern void disasm(char *s, vaddr_t pc, const void *code, size_t code_size);
+    static char buffer[128];
+    disasm(buffer, info->pc, &inst, sizeof(uint32_t));
+    printf("%s", buffer);
 #endif
 }
