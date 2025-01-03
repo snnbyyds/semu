@@ -43,6 +43,17 @@ static bool cmd_c(char *args) {
     return true;
 }
 
+static bool cmd_pause(char *args) {
+    extern uint64_t sdb_pause_pc;
+    if (!args && !(*args)) {
+        Warn("Invalid argument passed!");
+        return false;
+    }
+    sscanf(args, "%" SCNx64 "", &sdb_pause_pc);
+    Info("Will pause at PC: 0x%08" PRIx64 "", sdb_pause_pc);
+    return true;
+}
+
 static bool cmd_info(char *args) {
     if (args && !strcmp(args, "r")) {
         reg_val_display();
@@ -76,6 +87,7 @@ static sdb_cmd_t cmdtbl[] = {
     {"quit", "Quit SN Emu", cmd_quit},
     {"si", "Single step", cmd_si},
     {"c", "Continue", cmd_c},
+    {"pause", "Pause at a certain pc", cmd_pause},
     {"info", "Use 'info r' for reg vals", cmd_info},
     {"save", "Save snapshot", cmd_save},
     {"load", "Load snapshot", cmd_load},

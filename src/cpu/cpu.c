@@ -12,6 +12,7 @@
 
 CPU_State cpu = {};
 uint64_t running_seconds = 0;
+uint64_t sdb_pause_pc = -1;
 
 static pthread_t thread_cpu_exec;
 static pthread_attr_t attr;
@@ -41,6 +42,10 @@ static void *cpu_exec_thread(void *arg) {
     register uint64_t i = 0;
     for (; i < step; i++) {
         exec_once();
+        if (sdb_pause_pc != -1 && cpu.pc == sdb_pause_pc) {
+            Warn("Hit pc 0x%08" PRIu64 "", sdb_pause_pc);
+            SET_STATE(STOP);
+        }
         if (semu_state.state != RUNNING) {
             i++;
             break;
