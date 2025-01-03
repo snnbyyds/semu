@@ -48,6 +48,7 @@ static bool cmd_info(char *args) {
         reg_val_display();
     } else {
         Warn("Invalid argument passed!");
+        return false;
     }
     return true;
 }
@@ -55,7 +56,7 @@ static bool cmd_info(char *args) {
 static bool cmd_save(char *args) {
     if (!args || !(*args)) {
         Warn("Invalid argument passed!");
-        return true;
+        return false;
     }
     save_snapshot(args);
     return true;
@@ -64,7 +65,7 @@ static bool cmd_save(char *args) {
 static bool cmd_load(char *args) {
     if (!args || !(*args)) {
         Warn("Invalid argument passed!");
-        return true;
+        return false;
     }
     load_snapshot(args);
     return true;
@@ -120,6 +121,7 @@ static inline void sdb_handle_input() {
                 break;
             } else {
                 Warn("sdb cmd %p failed.", cmdtbl[i].handler);
+                break;
             }
         }
     }
