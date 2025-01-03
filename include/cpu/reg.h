@@ -14,5 +14,6 @@ enum {
 };
 
 void reg_val_display();
+char *reg_val_to_name(size_t idx);
 
 #endif

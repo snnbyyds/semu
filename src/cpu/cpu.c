@@ -27,6 +27,10 @@ static const uint32_t builtin_img[] = {
     0x00000000
 };
 
+size_t builtin_img_size = sizeof(builtin_img);
+
+void difftest_exec_once();
+
 __attribute__((always_inline))
 static inline void exec_once() {
     // exec the inst
@@ -42,6 +46,11 @@ static void *cpu_exec_thread(void *arg) {
     register uint64_t i = 0;
     for (; i < step; i++) {
         exec_once();
+
+#ifdef CONFIG_ENABLE_DIFFTEST
+        difftest_exec_once();
+#endif
+
         if (sdb_pause_pc != -1 && cpu.pc == sdb_pause_pc) {
             Warn("Hit pc 0x%08" PRIu64 "", sdb_pause_pc);
             SET_STATE(STOP);

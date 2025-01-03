@@ -7,9 +7,12 @@
 #include <getopt.h>
 
 void init_cpu(bool img_builtin);
+void init_difftest();
 void init_disasm();
 void init_memory();
 void sdb_batchmode_on();
+
+size_t image_size = -1;
 
 static char *image = NULL;
 
@@ -72,6 +75,7 @@ static void load_image() {
     int res = fread(guest_to_host(CONFIG_RESET_VECTOR), size, 1, fp);
     assert(res == 1);
     fclose(fp);
+    image_size = size;
 }
 
 void init_monitor(int argc, char *argv[]) {
@@ -85,6 +89,9 @@ void init_monitor(int argc, char *argv[]) {
     load_image();
 #ifdef CONFIG_ENABLE_ITRACE
     init_disasm();
-#endif
+#endif /* CONFIG_ENABLE_ITRACE */
+#ifdef CONFIG_ENABLE_DIFFTEST
+    init_difftest();
+#endif /* CONFIG_ENABLE_DIFFTEST */
     welcome();
 }

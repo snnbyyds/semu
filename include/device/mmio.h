@@ -6,6 +6,9 @@
 #define MMIO_WRITE true
 #define MMIO_READ false
 
+#define LIKELY_IN_MMIO(ADDR) \
+    ((ADDR) < CONFIG_MBASE || (ADDR) >= CONFIG_MBASE + CONFIG_MSIZE)
+
 typedef bool mmio_rw_t;
 typedef void (*io_handler_t) (mmio_rw_t mmio_rw_op, size_t offset, size_t len);
 

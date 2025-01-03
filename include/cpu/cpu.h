@@ -7,9 +7,9 @@
 #define NR_CSR 4096
 
 typedef struct {
-    word_t csr[NR_CSR];
     word_t gpr[NR_GPR];
     vaddr_t pc;
+    word_t csr[NR_CSR];
 } CPU_State;
 
 void cpu_exec(uint64_t step);

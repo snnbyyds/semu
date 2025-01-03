@@ -65,3 +65,4 @@ endmenu
 
 source "src/monitor/Kconfig"
 source "src/utils/trace/Kconfig"
+source "src/utils/difftest/Kconfig"

@@ -9,6 +9,8 @@ static uint8_t *p_space = NULL;
 static IOMap maps[NR_maps];
 static size_t nr_maps = 0;
 
+void difftest_request_skip_step();
+
 static inline void init_iospace() {
     p_space = (uint8_t *)ROUNDUP(iospace, PGSIZE);
 }
@@ -69,6 +71,9 @@ word_t mmio_read(ioaddr_t addr, size_t len) {
     if (maps[mapidx].io_handler) {
         maps[mapidx].io_handler(MMIO_READ, offset, len);
     }
+#ifdef CONFIG_ENABLE_DIFFTEST
+    difftest_request_skip_step();
+#endif
     return host_read(maps[mapidx].space + offset, len);
 }
 
@@ -80,6 +85,9 @@ void mmio_write(ioaddr_t addr, size_t len, word_t data) {
     if (maps[mapidx].io_handler) {
         maps[mapidx].io_handler(MMIO_WRITE, offset, len);
     }
+#ifdef CONFIG_ENABLE_DIFFTEST
+    difftest_request_skip_step();
+#endif
 }
 
 void init_mmio() {
