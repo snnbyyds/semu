@@ -6,7 +6,7 @@ config MBASE
 
 config MSIZE
   hex "Memory Size"
-  default 0x10000000
+  default 0x8000000
 
 config RESET_VECTOR
   hex "PC reset vector"
