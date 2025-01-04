@@ -103,7 +103,7 @@ INST_EXEC(csrrs,  I, word_t imm = IMM(I); word_t t = CSR(imm); CSR(imm) = t | R(
 INST_EXEC(csrrw,  I, word_t imm = IMM(I); word_t t = CSR(imm); CSR(imm) = R(rs1); R(rd) = t)
 INST_EXEC(ebreak, I, __special_handler())
 INST_EXEC(ecall,  I, __special_handler())
-INST_EXEC(jalr,   I, R(rd) = PC + 4, NPC = (R(rs1) + IMM(I)) & ~1)
+INST_EXEC(jalr,   I, word_t t = PC + 4; NPC = (R(rs1) + IMM(I)) & ~1; R(rd) = t)
 INST_EXEC(lb,     I, R(rd) = SEXT(Mr(R(rs1) + IMM(I), 1), 8))
 INST_EXEC(lbu,    I, R(rd) = Mr(R(rs1) + IMM(I), 1))
 INST_EXEC(lh,     I, R(rd) = SEXT(Mr(R(rs1) + IMM(I), 2), 16))
