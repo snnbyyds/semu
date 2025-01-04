@@ -37,11 +37,12 @@ static inline void exec_once() {
 
 // cpu_exec in child thread, arg as the step
 static void *cpu_exec_thread(void *arg) {
-    uint64_t step = (uint64_t)arg;
-    uint64_t i = 0;
+    register uint64_t step = (uint64_t)arg;
+    register uint64_t i = 0;
     for (; i < step; i++) {
         exec_once();
         if (semu_state.state != RUNNING) {
+            i++;
             break;
         }
     }
