@@ -82,6 +82,18 @@ static bool cmd_load(char *args) {
     return true;
 }
 
+#ifdef CONFIG_ENABLE_ITRACE
+static bool cmd_itrace(char *args) {
+    extern void itrace_switch(bool);
+    if (!args || !(*args)) {
+        Warn("Invalid argument passed!");
+        return false;
+    }
+    itrace_switch(!strncmp(args, "on", 2));
+    return true;
+}
+#endif
+
 static sdb_cmd_t cmdtbl[] = {
     {"clear", "Clear the screen", cmd_clear},
     {"quit", "Quit SN Emu", cmd_quit},
@@ -91,6 +103,9 @@ static sdb_cmd_t cmdtbl[] = {
     {"info", "Use 'info r' for reg vals", cmd_info},
     {"save", "Save snapshot", cmd_save},
     {"load", "Load snapshot", cmd_load},
+#ifdef CONFIG_ENABLE_ITRACE
+    {"itrace", "Switch itrace state", cmd_itrace},
+#endif
     {"help", "Print help msg", cmd_help}
 };
 
