@@ -52,28 +52,30 @@ make run IMG=/path/fceux-mario.bin
 #### kbuild system (`tools/kconfig`, synced from NEMU)
 
 #### debuggers (`src/monitor`)
-* sdb, builtin simple debugger with some simple commands
-* gdbstub, an implementation of the GDB Remote Serial Protocol to help debug programs with GDB
+* sdb (builtin simple debugger with some simple commands)
+* gdbstub (an implementation of the GDB Remote Serial Protocol to help debug programs with GDB)
 
 #### snapshot utility (`src/utils`)
 * snapshot backup & restore
 
 #### trace (`src/utils`)
-* instruction trace (to be enhanced)
+* exception / interruption trace
+* instruction trace (Powered by capstone 6)
 * function trace (NOT implemented)
 
 #### expression calculation
 * expression calculator (NOT implemented)
 
 #### difftest
-* difftest with NEMU (NOT implemented)
+* difftest with NEMU (DUT: SEMU, REF: https://github.com/ics-ext/nemu-ref)
+* serve as a REF for difftest (NOT implemented)
 
 ### CPU Simulation `src/cpu`
 * Common RV32IM instructions (`src/cpu/inst.c`)
 * GPRs
-* CSRs (WIP)
+* CSRs (Basic ones)
 * Fetch, decode, execute cycle (`src/cpu/cpu.c`)
-* Basic privileged ISA (WIP)
+* Basic privileged ISA
 
 ( TODO: Make it running even FASTER )
 
@@ -91,11 +93,8 @@ make run IMG=/path/fceux-mario.bin
 * timer (`src/device/timer.c`)
 * vga (`src/device/vga.c`)
 
-## Key design
-I spent a long time researching ways to improve the performance of the emulator. In the end, I decided to place the device update requests and clock interrupt triggers, as well as the CPU's (Fetch, Decode, Execute) loop, in separate threads for simulation, while keeping the status updates for devices (SDL operations) like VGA and keyboard in the main thread. This allowed fceux-am to run at a full 60 FPS without dropping frames.
-
 ## About HALs and programs
-I haven’t had the chance to develop our own Hardware Abstraction Layer, the `SAL` yet, so for now, I’ve only ported the `abstract-machine` as the abstraction layer. However, since the code in `abstract-machine`, `nanos-lite`, and `navy-apps` is related to **the ICS2024 Programming Assignment**, it ***cannot be made public***. Therefore, it will only be distributed in the form of precompiled binaries.
+I haven’t had the chance to develop our own Hardware Abstraction Layer, the `SAL` yet, so for now, I’ve only ported the `abstract-machine` as the abstraction layer. However, since the code in `abstract-machine`, `nanos-lite`, and `navy-apps` is related to **the ICS2024 Programming Assignment**, it ***cannot be made public***. Therefore, they will only be distributed in the form of precompiled binaries.
 
 ## Contributing
 Feel free to fork the repository and submit a pull request if you’d like to contribute. Bug fixes, performance improvements, and new features are always welcome! Please ensure your contributions follow the coding standards and include appropriate tests.
