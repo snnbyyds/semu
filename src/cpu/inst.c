@@ -183,16 +183,12 @@ void init_inst_pool() {
     RULE(jal,    J, _________, _____, 0b1101111);
 }
 
-static uint32_t opcode = 0;
-static uint32_t funct3 = 0;
-static uint32_t funct7 = 0;
-
 __attribute__((always_inline))
 static inline void exec_inst() {
     void (*handler)() = NULL;
-    opcode = decode_opcode(inst);
-    funct3 = decode_funct3(inst);
-    funct7 = decode_funct7(inst);
+    uint32_t opcode = decode_opcode(inst);
+    uint32_t funct3 = decode_funct3(inst);
+    uint32_t funct7 = decode_funct7(inst);
     if ((handler = pool[opcode].funct3_pool[funct3].handler)) {
         handler();
     } else if ((handler = pool[opcode].funct3_pool[funct3].funct7_pool[funct7].handler)) {
