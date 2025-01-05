@@ -7,6 +7,7 @@
 #define csr(i) cpu.csr[i]
 
 enum {
+    SATP    = 0x180,
     MSTATUS = 0x300,
     MTVEC   = 0x305,
     MEPC    = 0x341,
