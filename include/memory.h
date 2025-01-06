@@ -3,6 +3,39 @@
 
 #include <common.h>
 
+#define PTE_V_SHIFT  0
+#define PTE_R_SHIFT  1
+#define PTE_W_SHIFT  2
+#define PTE_X_SHIFT  3
+#define PTE_U_SHIFT  4
+#define PTE_G_SHIFT  5
+#define PTE_A_SHIFT  6
+#define PTE_D_SHIFT  7
+#define PTE_RSW_SHIFT 8
+#define PTE_PPN_SHIFT 10
+#define PTE_V        (1 << PTE_V_SHIFT)
+#define PTE_R        (1 << PTE_R_SHIFT)
+#define PTE_W        (1 << PTE_W_SHIFT)
+#define PTE_X        (1 << PTE_X_SHIFT)
+#define PTE_U        (1 << PTE_U_SHIFT)
+#define PTE_G        (1 << PTE_G_SHIFT)
+#define PTE_A        (1 << PTE_A_SHIFT)
+#define PTE_D        (1 << PTE_D_SHIFT)
+#define PTE_RSW      (3 << PTE_RSW_SHIFT)
+#define PTE_PPN      (0x3FFFFF << PTE_PPN_SHIFT) // PPN has 22 bits
+
+#define VA_OFFSET_SHIFT  0
+#define VA_VPN_0_SHIFT   12
+#define VA_VPN_1_SHIFT   22
+#define VA_OFFSET        (0xFFF << VA_OFFSET_SHIFT) // 12 bits for offset
+#define VA_VPN_0         (0x3FF << VA_VPN_0_SHIFT)  // 10 bits for VPN_0
+#define VA_VPN_1         (0x3FF << VA_VPN_1_SHIFT)  // 10 bits for VPN_1
+
+#define PA_OFFSET_SHIFT  0
+#define PA_PPN_SHIFT     12
+#define PA_OFFSET        (0xFFF << PA_OFFSET_SHIFT) // 12 bits for offset
+#define PA_PPN           (0xFFFFF << PA_PPN_SHIFT)  // 20 bits for PPN (not 22 for now...)
+
 #define IN_PMEM(ADDR) \
     ((ADDR) >= CONFIG_MBASE && (ADDR) < CONFIG_MBASE + CONFIG_MSIZE)
 
