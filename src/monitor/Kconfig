@@ -1,6 +1,11 @@
-menuconfig USE_GDBSTUB
+config USE_GDBSTUB
   bool "Use gdb instead of sdb"
-  default nemu
+  default n
   help
-    Start USE_GDBSTUB
+    Start GDBSTUB
 
+config PAUSE_PC
+  bool "Allow pause at a set PC"
+  default n
+  help
+    Allow pause at a set PC

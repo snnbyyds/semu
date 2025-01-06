@@ -43,6 +43,7 @@ static bool cmd_c(char *args) {
     return true;
 }
 
+#ifdef CONFIG_PAUSE_PC
 static bool cmd_pause(char *args) {
     extern uint64_t sdb_pause_pc;
     if (!args && !(*args)) {
@@ -53,6 +54,7 @@ static bool cmd_pause(char *args) {
     Info("Will pause at PC: 0x%08" PRIx64 "", sdb_pause_pc);
     return true;
 }
+#endif
 
 static bool cmd_info(char *args) {
     if (args && !strcmp(args, "r")) {
@@ -99,7 +101,9 @@ static sdb_cmd_t cmdtbl[] = {
     {"quit", "Quit SN Emu", cmd_quit},
     {"si", "Single step", cmd_si},
     {"c", "Continue", cmd_c},
+#ifdef CONFIG_PAUSE_PC
     {"pause", "Pause at a certain pc", cmd_pause},
+#endif
     {"info", "Use 'info r' for reg vals", cmd_info},
     {"save", "Save snapshot", cmd_save},
     {"load", "Load snapshot", cmd_load},
