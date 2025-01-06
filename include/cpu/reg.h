@@ -73,11 +73,12 @@
 #define MCAUSE_INTERRUPT (1 << MCAUSE_INTERRUPT_SHIFT)          // 1 bit
 
 enum {
-    SATP    = 0x180,
-    MSTATUS = 0x300,
-    MTVEC   = 0x305,
-    MEPC    = 0x341,
-    MCAUSE  = 0x342
+    SATP     = 0x180,
+    MSTATUS  = 0x300,
+    MTVEC    = 0x305,
+    MSCRATCH = 0x340,
+    MEPC     = 0x341,
+    MCAUSE   = 0x342
 };
 
 typedef uint32_t CSR_Number;
