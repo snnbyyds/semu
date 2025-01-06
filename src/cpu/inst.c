@@ -73,6 +73,9 @@ static inline void __special_handler() {
             break;
         case 0b00110000001000000000000001110011: // mret
             NPC = CSR(MEPC);
+            set_csr_field(MSTATUS, MSTATUS_MIE, MSTATUS_MIE_SHIFT,
+                get_csr_field(MSTATUS, MSTATUS_MPIE, MSTATUS_MPIE_SHIFT));
+            set_csr_field(MSTATUS, MSTATUS_MPIE, MSTATUS_MPIE_SHIFT, 1);
             break;
         default:
             assert(0);

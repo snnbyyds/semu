@@ -30,6 +30,8 @@ static const uint32_t builtin_img[] = {
 size_t builtin_img_size = sizeof(builtin_img);
 
 void difftest_exec_once();
+word_t isa_query_intr();
+word_t isa_raise_intr(word_t no, vaddr_t epc);
 
 __attribute__((always_inline))
 static inline void exec_once() {
@@ -46,8 +48,13 @@ static void *cpu_exec_thread(void *arg) {
     register uint64_t i = 0;
     for (; i < step; i++) {
         exec_once();
+        word_t intr = isa_query_intr();
+        if (intr != -1) {
+            cpu.pc = isa_raise_intr(intr, cpu.pc);
+        }
 
 #ifdef CONFIG_ENABLE_DIFFTEST
+        // TODO: Sync intr status to REF
         difftest_exec_once();
 #endif
 

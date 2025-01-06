@@ -10,4 +10,6 @@ void init_device();
 void update_device();
 void close_device();
 
+void dev_raise_intr();
+
 #endif

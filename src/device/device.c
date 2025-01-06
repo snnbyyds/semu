@@ -44,6 +44,9 @@ void init_device() {
 
     // Add the timer callback for device updates
     add_timer_exec(request_device_update);
+
+    // Add the timer callback for timer intr
+    add_timer_exec(dev_raise_intr);
 }
 
 void close_device() {
