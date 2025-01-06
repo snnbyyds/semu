@@ -16,7 +16,7 @@
 })
 
 mmu_state_t isa_mmu_check() {
-    return get_csr_field(SATP, SATP_MODE, SATP_MODE_SHIFT) ? MMU_TRANSLATE : MMU_DIRECT;
+    return csr(SATP) ? MMU_TRANSLATE : MMU_DIRECT;
 }
 
 paddr_t isa_mmu_translate(vaddr_t vaddr, mem_access_t type) {
