@@ -208,7 +208,7 @@ void inst_exec_once(exec_t *info) {
     extern void itrace(exec_t *info, uint32_t inst);
 
     // Inst fetch
-    inst = vaddr_read(info->snpc, sizeof(uint32_t));
+    inst = vaddr_ifetch(info->snpc, sizeof(inst));
 
     itrace(info, inst);
     info->snpc += (vaddr_t)sizeof(uint32_t);
