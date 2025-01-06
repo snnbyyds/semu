@@ -15,10 +15,18 @@
     assert((PTE & PTE_V) && DECODE(PTE, PTE_R) >= PermR && DECODE(PTE, PTE_W) >= PermW && DECODE(PTE, PTE_X) >= PermX); \
 })
 
+/* Check current MMU state
+ * @return: MMU state
+ */
 mmu_state_t isa_mmu_check() {
     return csr(SATP) ? MMU_TRANSLATE : MMU_DIRECT;
 }
 
+/* Walk through page tables to translate vaddr to paddr
+ * @vaddr: virtual address
+ * @type: access type
+ * @return: physical address
+ */
 paddr_t isa_mmu_translate(vaddr_t vaddr, mem_access_t type) {
     paddr_t lv1_PTE_addr = (get_csr_field(SATP, SATP_PPN, SATP_PPN_SHIFT) << 12) + (DECODE(vaddr, VA_VPN_1) << 2);
     PTE lv1_PTE = paddr_read(lv1_PTE_addr, sizeof(PTE));

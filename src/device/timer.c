@@ -80,6 +80,9 @@ static void timer_thread(union sigval v) {
     }
 }
 
+/* Add a handler being called at TIMER_HZ
+ * @subhandler: ptr to the handler
+ */
 void add_timer_exec(void (*subhandler)(void)) {
     if (nr_timers == NR_TIMERS_MAX - 1) {
         Error("Can not add more timers!");

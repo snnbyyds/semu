@@ -99,6 +99,7 @@ static void halt_cpu() {
     }
 }
 
+/* Initialize the cpu */
 void init_cpu(bool img_builtin) {
     memset(&cpu, 0, sizeof(cpu));
     cpu.pc = CONFIG_RESET_VECTOR;
@@ -121,6 +122,9 @@ void init_cpu(bool img_builtin) {
     }
 }
 
+/* Let the cpu exec some steps
+ * @step: Number of the steps
+ */
 void cpu_exec(uint64_t step) {
     switch (semu_state.state) {
         case END: case ABORT: case QUIT: stop_timers(); printf("Program has ended. Please restart semu.\n"); return;

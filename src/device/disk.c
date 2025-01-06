@@ -7,13 +7,13 @@
 #define CHECK_BLKNO(NO) ({ assert((NO) < disk_base[reg_blkcnt]); })
 
 enum {
-  reg_present,
-  reg_blksz,
-  reg_blkcnt,
-  reg_ready,
-  reg_cmd,
-  reg_blkno,
-  nr_reg
+    reg_present,
+    reg_blksz,
+    reg_blkcnt,
+    reg_ready,
+    reg_cmd,
+    reg_blkno,
+    nr_reg
 };
 
 static char diskpath[64] = "";
