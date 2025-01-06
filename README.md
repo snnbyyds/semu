@@ -81,13 +81,13 @@ make run IMG=/path/fceux-mario.bin
 
 ### Memory Simulation `src/memory`
 * Basic read and write operations
-* RV32 Sv32 paging (WIP)
-* TLB simulation (NOT implemented)
+* RV32 Sv32 paging (Basic)
+* TLB (NOT implemented)
 * MMIO `src/device/mmio`
 
 ### Device Simulation `src/device`
 * audio (`src/device/audio.c`)
-* disk (`src/device/disk.c`, Untested)
+* disk (`src/device/disk.c`)
 * keyboard (`src/device/keyboard.c`)
 * serial (`src/device/serial.c`, Input not implemented)
 * timer (`src/device/timer.c`)
