@@ -2,16 +2,16 @@
 #include <device/mmio.h>
 
 word_t paddr_read(paddr_t addr, size_t len) {
-    if (LIKELY_IN_MMIO(addr)) {
-        return mmio_read(addr, len);
+    if (likely(IN_PMEM(addr))) {
+        return host_read(guest_to_host(addr), len);
     }
-    return host_read(guest_to_host(addr), len);
+    return mmio_read(addr, len);
 }
 
 void paddr_write(paddr_t addr, size_t len, word_t data) {
-    if (LIKELY_IN_MMIO(addr)) {
-        mmio_write(addr, len, data);
-    } else {
+    if (likely(IN_PMEM(addr))) {
         host_write(guest_to_host(addr), len, data);
+    } else {
+        mmio_write(addr, len, data);
     }
 }
