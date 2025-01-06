@@ -44,7 +44,7 @@ static inline void exec_once() {
 
 // cpu_exec in child thread, arg as the step
 static void *cpu_exec_thread(void *arg) {
-    register uint64_t step = (uint64_t)arg;
+    uint64_t step = (uint64_t)arg;
     register uint64_t i = 0;
     for (; i < step; i++) {
         exec_once();
@@ -58,11 +58,11 @@ static void *cpu_exec_thread(void *arg) {
         difftest_exec_once();
 #endif
 
-        if (sdb_pause_pc != -1 && cpu.pc == sdb_pause_pc) {
+        if (unlikely(sdb_pause_pc != -1 && cpu.pc == sdb_pause_pc)) {
             Warn("Hit pc 0x%08" PRIu64 "", sdb_pause_pc);
             SET_STATE(STOP);
         }
-        if (semu_state.state != RUNNING) {
+        if (unlikely(semu_state.state != RUNNING)) {
             i++;
             break;
         }
