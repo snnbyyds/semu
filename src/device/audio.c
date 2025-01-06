@@ -53,6 +53,7 @@ static void audio_callback(void *userdata, SDL_AudioStream *stream, int addition
 }
 
 static void audio_play() {
+    static SDL_AudioStream *stream = NULL;
     if (audio_base[reg_init] != audio_config) {
         return;
     }
@@ -61,7 +62,10 @@ static void audio_play() {
         .channels = audio_base[reg_channels],
         .freq = audio_base[reg_freq]
     };
-    SDL_AudioStream *stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired_spec, audio_callback, NULL);
+    if (stream) {
+        SDL_DestroyAudioStream(stream);
+    }
+    stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired_spec, audio_callback, NULL);
     SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
 }
 
