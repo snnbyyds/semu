@@ -5,6 +5,7 @@
 #include <device/timer.h>
 #include <errno.h>
 #include <string.h>
+#include <system.h>
 #include <utils/state.h>
 
 #define __USE_GNU
@@ -33,8 +34,6 @@ static const uint32_t builtin_img[] = {
 size_t builtin_img_size = sizeof(builtin_img);
 
 void difftest_exec_once();
-word_t isa_query_intr();
-word_t isa_raise_intr(word_t no, vaddr_t epc);
 
 __attribute__((always_inline))
 static inline void exec_once() {
@@ -51,9 +50,9 @@ static void *cpu_exec_thread(void *arg) {
     register uint64_t i = 0;
     for (; i < step; i++) {
         exec_once();
-        word_t intr = isa_query_intr();
+        word_t intr = ISA_QUERY_INTR();
         if (intr != -1) {
-            cpu.pc = isa_raise_intr(intr, cpu.pc);
+            cpu.pc = ISA_RAISE_INTR(intr, cpu.pc);
         }
 
 #ifdef CONFIG_ENABLE_DIFFTEST
@@ -103,7 +102,7 @@ static void halt_cpu() {
 void init_cpu(bool img_builtin) {
     memset(&cpu, 0, sizeof(cpu));
     cpu.pc = CONFIG_RESET_VECTOR;
-    cpu.csr[MSTATUS] = 0x1800;
+    cpu.csr_mstatus = 0x1800;
 
     // Set up thread
     pthread_attr_init(&attr);
@@ -118,7 +117,7 @@ void init_cpu(bool img_builtin) {
     // Load builtin image
     if (img_builtin) {
         Log("Loading builtin image to 0x%" PRIx64 "...", (uint64_t)CONFIG_RESET_VECTOR);
-        memcpy(guest_to_host(CONFIG_RESET_VECTOR), builtin_img, sizeof(builtin_img));
+        memcpy(GUEST_TO_HOST(CONFIG_RESET_VECTOR), builtin_img, sizeof(builtin_img));
     }
 }
 

@@ -72,7 +72,7 @@ static void load_image() {
     long size = ftell(fp);
     Log("Loading image %s of size %ld...", image, size);
     fseek(fp, 0, SEEK_SET);
-    int res = fread(guest_to_host(CONFIG_RESET_VECTOR), size, 1, fp);
+    int res = fread(GUEST_TO_HOST(CONFIG_RESET_VECTOR), size, 1, fp);
     assert(res == 1);
     fclose(fp);
     image_size = size;

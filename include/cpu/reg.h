@@ -4,7 +4,6 @@
 #include "cpu.h"
 
 #define gpr(i) cpu.gpr[i]
-#define csr(i) cpu.csr[i]
 
 // MSTATUS field masks and shifts
 #define MSTATUS_UIE_SHIFT 0
@@ -72,24 +71,33 @@
 #define MCAUSE_EXCEPTION (0x7FFFFFFF << MCAUSE_EXCEPTION_SHIFT) // 31 bits
 #define MCAUSE_INTERRUPT (1 << MCAUSE_INTERRUPT_SHIFT)          // 1 bit
 
-enum {
+typedef enum {
     SATP     = 0x180,
     MSTATUS  = 0x300,
     MTVEC    = 0x305,
     MSCRATCH = 0x340,
     MEPC     = 0x341,
     MCAUSE   = 0x342
-};
+} CSR_Number;
 
-typedef uint32_t CSR_Number;
-
-static inline uint32_t get_csr_field(CSR_Number number, uint32_t mask, uint32_t shift) {
-    return (csr(number) & mask) >> shift;
-}
-
-static inline void set_csr_field(CSR_Number number, uint32_t mask, uint32_t shift, uint32_t value) {
-    csr(number) &= ~mask;
-    csr(number) |= (value << shift) & mask;
+static inline word_t *csr_get_ptr(CSR_Number number) {
+    switch (number) {
+        case SATP: // 0x180
+            return &cpu.csr_satp;
+        case MSTATUS: // 0x300
+            return &cpu.csr_mstatus;
+        case MTVEC: // 0x305
+            return &cpu.csr_mtvec;
+        case MSCRATCH: // 0x340
+            return &cpu.csr_mscratch;
+        case MEPC: // 0X341
+            return &cpu.csr_mepc;
+        case MCAUSE: // 0x342
+            return &cpu.csr_mcause;
+        default:
+            assert(0);
+    }
+    return NULL;
 }
 
 void reg_val_display();

@@ -39,25 +39,51 @@
 #define IN_PMEM(ADDR) \
     ((ADDR) >= CONFIG_MBASE && (ADDR) < CONFIG_MBASE + CONFIG_MSIZE)
 
-typedef void * haddr_t;
 typedef word_t PTE;
 typedef enum { MMU_DIRECT, MMU_TRANSLATE, MMU_INVALID } mmu_state_t;
 typedef enum { MEM_TYPE_READ, MEM_TYPE_WRITE, MEM_TYPE_IFETCH } mem_access_t;
 
-mmu_state_t isa_mmu_check();
-paddr_t isa_mmu_translate(vaddr_t vaddr, mem_access_t type);
+/* ptr to the memory array */
+extern void *pmem;
 
-void *guest_to_host(paddr_t addr);
-paddr_t host_to_guest(const void *addr);
+#define GUEST_TO_HOST(PADDR) \
+    ((void *)(pmem + ((paddr_t)(PADDR) - CONFIG_MBASE)))
 
-word_t host_read(const haddr_t haddr, size_t len);
-void host_write(haddr_t haddr, size_t len, word_t data);
+#define HOST_TO_GUEST(HADDR) \
+    ((paddr_t)((const void *)(HADDR) - (const void *)pmem + CONFIG_MBASE))
 
-word_t paddr_read(paddr_t addr, size_t len);
-void paddr_write(paddr_t addr, size_t len, word_t data);
+/* Read from host address */
+#define HOST_READ(HADDR, LEN) \
+    ({ \
+        word_t __ret = -1; \
+        switch (len) { \
+            case 1: __ret = *(uint8_t *)(HADDR); break; \
+            case 2: __ret = *(uint16_t *)(HADDR); break; \
+            case 4: __ret = *(uint32_t *)(HADDR); break; \
+            default: assert(0); \
+        } \
+        __ret; \
+    })
 
-word_t vaddr_read(vaddr_t addr, size_t len);
-void vaddr_write(vaddr_t write, size_t len, word_t data);
-word_t vaddr_ifetch(vaddr_t addr, size_t len);
+/* Write to host address */
+#define HOST_WRITE(HADDR, LEN, DATA) \
+    do { \
+        switch (LEN) { \
+            case 1: *(uint8_t *)(HADDR) = (uint8_t)(DATA); break; \
+            case 2: *(uint16_t *)(HADDR) = (uint16_t)(DATA); break; \
+            case 4: *(uint32_t *)(HADDR) = (uint32_t)(DATA); break; \
+            default: assert(0); \
+        } \
+    } while (0)
+
+uint32_t vaddr_read_w(vaddr_t addr);
+uint16_t vaddr_read_s(vaddr_t addr);
+uint8_t vaddr_read_b(vaddr_t addr);
+
+void vaddr_write_w(vaddr_t addr, uint32_t data);
+void vaddr_write_s(vaddr_t addr, uint16_t data);
+void vaddr_write_b(vaddr_t addr, uint8_t data);
+
+word_t vaddr_ifetch(vaddr_t addr);
 
 #endif

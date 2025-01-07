@@ -74,14 +74,14 @@ word_t mmio_read(ioaddr_t addr, size_t len) {
 #ifdef CONFIG_ENABLE_DIFFTEST
     difftest_request_skip_step();
 #endif
-    return host_read(maps[mapidx].space + offset, len);
+    return HOST_READ(maps[mapidx].space + offset, len);
 }
 
 void mmio_write(ioaddr_t addr, size_t len, word_t data) {
     int mapidx = findmap(addr);
     Assert(mapidx != -1);
     size_t offset = addr - maps[mapidx].low;
-    host_write(maps[mapidx].space + offset, len, data);
+    HOST_WRITE(maps[mapidx].space + offset, len, data);
     if (maps[mapidx].io_handler) {
         maps[mapidx].io_handler(MMIO_WRITE, offset, len);
     }

@@ -82,7 +82,7 @@ static void save_cpu_state() {
 }
 
 static void save_mem_state() {
-    memcpy(snapshot_buff + snapshot_file_hdr.mem_data_offset, guest_to_host(CONFIG_MBASE), CONFIG_MSIZE);
+    memcpy(snapshot_buff + snapshot_file_hdr.mem_data_offset, GUEST_TO_HOST(CONFIG_MBASE), CONFIG_MSIZE);
     Info("Successfully saved Memory state");
 }
 
@@ -122,7 +122,7 @@ static void load_mem_state() {
     if (!input_snapshot_valid) {
         return;
     }
-    memcpy(guest_to_host(CONFIG_MBASE), snapshot_buff + snapshot_file_hdr.mem_data_offset, CONFIG_MSIZE);
+    memcpy(GUEST_TO_HOST(CONFIG_MBASE), snapshot_buff + snapshot_file_hdr.mem_data_offset, CONFIG_MSIZE);
     Info("Memory state loaded");
 }
 

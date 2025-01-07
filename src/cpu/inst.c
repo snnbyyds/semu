@@ -4,13 +4,17 @@
 #include <memory.h>
 #include <utils/state.h>
 #include <string.h>
+#include <system.h>
 #include <assert.h>
 
 #define R(i) gpr(i)
-#define CSR(i) csr(i)
 
-#define Mr vaddr_read
-#define Mw vaddr_write
+#define Mr_w vaddr_read_w
+#define Mr_s vaddr_read_s
+#define Mr_b vaddr_read_b
+#define Mw_w vaddr_write_w
+#define Mw_s vaddr_write_s
+#define Mw_b vaddr_write_b
 
 #define PC _info->pc
 #define NPC _info->dnpc
@@ -62,20 +66,19 @@ static exec_t *_info = NULL;
 
 // special handler for ones that can be matched with raw inst...
 static inline void __special_handler() {
-    extern word_t isa_raise_intr(word_t no, vaddr_t epc);
-
     switch (inst) {
         case 0b00000000000100000000000001110011: // ebreak
             SET_STATE(gpr(10) ? ABORT : END);
             break;
         case 0b00000000000000000000000001110011: // ecall
-            NPC = isa_raise_intr(0xb, PC);
+            NPC = ISA_RAISE_INTR(0xb, PC);
             break;
         case 0b00110000001000000000000001110011: // mret
-            NPC = CSR(MEPC);
-            set_csr_field(MSTATUS, MSTATUS_MIE, MSTATUS_MIE_SHIFT,
-                get_csr_field(MSTATUS, MSTATUS_MPIE, MSTATUS_MPIE_SHIFT));
-            set_csr_field(MSTATUS, MSTATUS_MPIE, MSTATUS_MPIE_SHIFT, 1);
+            NPC = cpu.csr_mepc;
+            const uint32_t mstatus_mpie =
+                (cpu.csr_mstatus & MSTATUS_MPIE) >> MSTATUS_MPIE_SHIFT;
+            cpu.csr_mstatus |= (mstatus_mpie << MSTATUS_MIE_SHIFT);
+            cpu.csr_mstatus |= MSTATUS_MPIE;
             break;
         default:
             assert(0);
@@ -102,16 +105,16 @@ INST_EXEC(sub,    R, R(rd) = R(rs1) - R(rs2))
 INST_EXEC(xor,    R, R(rd) = R(rs1) ^ R(rs2))
 INST_EXEC(addi,   I, R(rd) = R(rs1) + IMM(I))
 INST_EXEC(andi,   I, R(rd) = R(rs1) & IMM(I))
-INST_EXEC(csrrs,  I, word_t imm = IMM(I); word_t t = CSR(imm); CSR(imm) = t | R(rs1); R(rd) = t)
-INST_EXEC(csrrw,  I, word_t imm = IMM(I); word_t t = CSR(imm); CSR(imm) = R(rs1); R(rd) = t)
+INST_EXEC(csrrs,  I, word_t imm = IMM(I); word_t *c = csr_get_ptr(imm); word_t t = *c; *c = t | R(rs1); R(rd) = t)
+INST_EXEC(csrrw,  I, word_t imm = IMM(I); word_t *c = csr_get_ptr(imm); word_t t = *c; *c = R(rs1); R(rd) = t)
 INST_EXEC(ebreak, I, __special_handler())
 INST_EXEC(ecall,  I, __special_handler())
 INST_EXEC(jalr,   I, word_t t = PC + 4; NPC = (R(rs1) + IMM(I)) & ~1; R(rd) = t)
-INST_EXEC(lb,     I, R(rd) = SEXT(Mr(R(rs1) + IMM(I), 1), 8))
-INST_EXEC(lbu,    I, R(rd) = Mr(R(rs1) + IMM(I), 1))
-INST_EXEC(lh,     I, R(rd) = SEXT(Mr(R(rs1) + IMM(I), 2), 16))
-INST_EXEC(lhu,    I, R(rd) = Mr(R(rs1) + IMM(I), 2))
-INST_EXEC(lw,     I, R(rd) = Mr(R(rs1) + IMM(I), 4))
+INST_EXEC(lb,     I, R(rd) = SEXT(Mr_b(R(rs1) + IMM(I)), 8))
+INST_EXEC(lbu,    I, R(rd) = Mr_b(R(rs1) + IMM(I)))
+INST_EXEC(lh,     I, R(rd) = SEXT(Mr_s(R(rs1) + IMM(I)), 16))
+INST_EXEC(lhu,    I, R(rd) = Mr_s(R(rs1) + IMM(I)))
+INST_EXEC(lw,     I, R(rd) = Mr_w(R(rs1) + IMM(I)))
 INST_EXEC(ori,    I, R(rd) = R(rs1) | IMM(I))
 INST_EXEC(slli,   I, R(rd) = R(rs1) << (IMM(I) & 0x3f))
 INST_EXEC(slti,   I, R(rd) = (sword_t)R(rs1) < (sword_t)IMM(I))
@@ -119,9 +122,9 @@ INST_EXEC(sltiu,  I, R(rd) = R(rs1) < IMM(I))
 INST_EXEC(srai,   I, R(rd) = (sword_t)R(rs1) >> (IMM(I) & 0x3f))
 INST_EXEC(srli,   I, R(rd) = R(rs1) >> (IMM(I) & 0x3f))
 INST_EXEC(xori,   I, R(rd) = R(rs1) ^ IMM(I))
-INST_EXEC(sb,     S, Mw(R(rs1) + IMM(S), 1, R(rs2)))
-INST_EXEC(sh,     S, Mw(R(rs1) + IMM(S), 2, R(rs2)))
-INST_EXEC(sw,     S, Mw(R(rs1) + IMM(S), 4, R(rs2)))
+INST_EXEC(sb,     S, Mw_b(R(rs1) + IMM(S), R(rs2)))
+INST_EXEC(sh,     S, Mw_s(R(rs1) + IMM(S), R(rs2)))
+INST_EXEC(sw,     S, Mw_w(R(rs1) + IMM(S), R(rs2)))
 INST_EXEC(beq,    B, if (R(rs1) == R(rs2)) NPC = PC + IMM(B))
 INST_EXEC(bge,    B, if ((sword_t)R(rs1) >= (sword_t)R(rs2)) NPC = PC + IMM(B))
 INST_EXEC(bgeu,   B, if (R(rs1) >= R(rs2)) NPC = PC + IMM(B))
@@ -211,7 +214,7 @@ void inst_exec_once(exec_t *info) {
     extern void itrace(exec_t *info, uint32_t inst);
 
     // Inst fetch
-    inst = vaddr_ifetch(info->snpc, sizeof(inst));
+    inst = vaddr_ifetch(info->snpc);
 
     itrace(info, inst);
     info->snpc += (vaddr_t)sizeof(uint32_t);

@@ -76,7 +76,7 @@ static int emu_read_mem(void *args, size_t addr, size_t len, void *val) {
     if (!IN_PMEM(addr) || !IN_PMEM(addr + len)) {
         return EFAULT;
     }
-    memcpy(val, guest_to_host(addr), len);
+    memcpy(val, GUEST_TO_HOST(addr), len);
     return 0;
 }
 
@@ -84,7 +84,7 @@ static int emu_write_mem(void *args, size_t addr, size_t len, void *val) {
     if (!IN_PMEM(addr) || !IN_PMEM(addr + len)) {
         return EFAULT;
     }
-    memcpy(guest_to_host(addr), val, len);
+    memcpy(GUEST_TO_HOST(addr), val, len);
     return 0;
 }
 
