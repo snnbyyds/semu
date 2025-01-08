@@ -2,9 +2,15 @@
 A simple RISC-V 32 emulator for **fun** and **practice**, inspired by **NEMU**.  
 This project is the final project for **CPL2024**.
 
-![ScreenShot 01](assets/01.png)
-![ScreenShot 02](assets/02.png)
+<p align="center">
+  <img height="610em" src="assets/01.png">
+  <img height="350em" src="assets/02.png">
+</p>
 
+![ScreenShot 02](assets/03.png)
+![ScreenShot 02](assets/04.png)
+![ScreenShot 02](assets/05.png)
+![ScreenShot 02](assets/06.png)
 ## Installation
 
 ### 1. Set up the environment
@@ -76,6 +82,7 @@ make run IMG=/path/fceux-mario.bin
 * CSRs (Basic ones)
 * Fetch, decode, execute cycle (`src/cpu/cpu.c`)
 * Basic privileged ISA
+* FPU (TODO)
 
 ( TODO: Make it running even FASTER )
 
