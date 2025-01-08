@@ -100,6 +100,7 @@ typedef enum {
     MCAUSE   = 0x342
 } CSR_Number;
 
+__attribute__((always_inline))
 static inline word_t *csr_get_ptr(CSR_Number number) {
     switch (number) {
         case FFLAGS: // 0x001

@@ -1,6 +1,6 @@
 #include <cpu/cpu.h>
 #include <cpu/inst.h>
-#include <cpu/reg.h>
+#include <cpu/fpu.h>
 #include <memory.h>
 #include <utils/state.h>
 #include <string.h>
@@ -85,6 +85,7 @@ static inline void __special_handler() {
     }
 }
 
+/* RV32I and RV32M exec rules */
 INST_EXEC(add,    R, R(rd) = R(rs1) + R(rs2))
 INST_EXEC(and,    R, R(rd) = R(rs1) & R(rs2))
 INST_EXEC(div,    R, R(rd) = (sword_t)R(rs1) / (sword_t)R(rs2))
@@ -135,9 +136,14 @@ INST_EXEC(auipc,  U, R(rd) = PC + IMM(U))
 INST_EXEC(lui,    U, R(rd) = IMM(U))
 INST_EXEC(jal,    J, R(rd) = PC + 4, NPC = PC + IMM(J))
 
+/* RV32F exec rules */
+// TODO
+
 void init_inst_pool() {
+    /* Clear the pool */
     memset(pool, 0, sizeof(pool));
 
+    /* RV32I and RV32M decode rules */
     RULE(add,    R, 0b0000000, 0b000, 0b0110011);
     RULE(and,    R, 0b0000000, 0b111, 0b0110011);
     RULE(div,    R, 0b0000001, 0b100, 0b0110011);
@@ -187,6 +193,9 @@ void init_inst_pool() {
     RULE(auipc,  U, _________, _____, 0b0010111);
     RULE(lui,    U, _________, _____, 0b0110111);
     RULE(jal,    J, _________, _____, 0b1101111);
+
+    /* RV32F decode rules */
+    // TODO
 }
 
 __attribute__((always_inline))
