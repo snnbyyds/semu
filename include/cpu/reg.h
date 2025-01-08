@@ -4,6 +4,31 @@
 #include "cpu.h"
 
 #define gpr(i) cpu.gpr[i]
+#define fpr(i) cpu.fpr[i]
+
+// FCSR field masks and shifts
+#define FCSR_FFLAG_SHIFT 0
+#define FCSR_NX_SHIFT 0 /* Inexact */
+#define FCSR_UF_SHIFT 1 /* Underflow */
+#define FCSR_OF_SHIFT 2 /* Overflow */
+#define FCSR_DZ_SHIFT 3 /* Divide by Zero */
+#define FCSR_NV_SHIFT 4 /* Invalid Operation */
+#define FCSR_FRM_SHIFT 5
+#define FCSR_FFLAG_MASK (0x1F << FCSR_FFLAG_SHIFT)
+#define FCSR_NX_MASK (1 << FCSR_NX_SHIFT)
+#define FCSR_UF_MASK (1 << FCSR_UF_SHIFT)
+#define FCSR_OF_MASK (1 << FCSR_OF_SHIFT)
+#define FCSR_DZ_MASK (1 << FCSR_DZ_SHIFT)
+#define FCSR_NV_MASK (1 << FCSR_NV_SHIFT)
+#define FCSR_FRM_MASK (7 << FCSR_FRM_SHIFT)
+
+// SATP field masks and shifts
+#define SATP_PPN_SHIFT 0
+#define SATP_ASID_SHIFT 22
+#define SATP_MODE_SHIFT 31
+#define SATP_PPN (0x3FFFFF << SATP_PPN_SHIFT) // 22 bits
+#define SATP_ASID (0x1FF << SATP_ASID_SHIFT)  // 9 bits
+#define SATP_MODE (1 << SATP_MODE_SHIFT)      // 1 bit
 
 // MSTATUS field masks and shifts
 #define MSTATUS_UIE_SHIFT 0
@@ -49,14 +74,6 @@
 #define MSTATUS_WPRI4 (0xFF << MSTATUS_WPRI4_SHIFT) // 8 bits
 #define MSTATUS_SD (1 << MSTATUS_SD_SHIFT)
 
-// SATP field masks and shifts
-#define SATP_PPN_SHIFT 0
-#define SATP_ASID_SHIFT 22
-#define SATP_MODE_SHIFT 31
-#define SATP_PPN (0x3FFFFF << SATP_PPN_SHIFT) // 22 bits
-#define SATP_ASID (0x1FF << SATP_ASID_SHIFT)  // 9 bits
-#define SATP_MODE (1 << SATP_MODE_SHIFT)      // 1 bit
-
 // MTVEC field masks and shifts
 #define MTVEC_VALUE_SHIFT 0
 #define MTVEC_VALUE (0xFFFFFFFF << MTVEC_VALUE_SHIFT) // 32 bits
@@ -72,6 +89,9 @@
 #define MCAUSE_INTERRUPT (1 << MCAUSE_INTERRUPT_SHIFT)          // 1 bit
 
 typedef enum {
+    FFLAGS   = 0x001,
+    FRM      = 0x002,
+    FCSR     = 0x003,
     SATP     = 0x180,
     MSTATUS  = 0x300,
     MTVEC    = 0x305,
@@ -82,6 +102,10 @@ typedef enum {
 
 static inline word_t *csr_get_ptr(CSR_Number number) {
     switch (number) {
+        case FFLAGS: // 0x001
+        case FRM: // 0x002
+        case FCSR: // 0x003
+            return &cpu.csr_fcsr;
         case SATP: // 0x180
             return &cpu.csr_satp;
         case MSTATUS: // 0x300

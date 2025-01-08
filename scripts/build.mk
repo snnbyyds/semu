@@ -14,7 +14,9 @@ INC_PATH := $(WORK_DIR)/include $(INC_PATH)
 OBJ_DIR  = $(BUILD_DIR)/obj-$(NAME)$(SO)
 BINARY   = $(BUILD_DIR)/$(NAME)$(SO)
 
-ARCHIVES = $(if $(CONFIG_USE_GDBSTUB),$(LIBGDBSTUB),)
+ARCHIVES = \
+	$(if $(CONFIG_USE_GDBSTUB),$(LIBGDBSTUB),) \
+	$(LIBSOFTFLOAT)
 
 # Compilation flags
 ifeq ($(CC),clang)
@@ -28,6 +30,7 @@ CFLAGS  := -MMD -Wall -Werror $(INCLUDES) $(CFLAGS)
 LDFLAGS := $(LDFLAGS)
 
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o) $(CXXSRC:%.cc=$(OBJ_DIR)/%.o)
+$(OBJS): $(ARCHIVES)
 
 # Compilation patterns
 $(OBJ_DIR)/%.o: %.c
@@ -51,7 +54,7 @@ $(OBJ_DIR)/%.o: %.cc
 
 app: $(BINARY)
 
-$(BINARY):: $(OBJS) $(ARCHIVES)
+$(BINARY):: $(ARCHIVES) $(OBJS)
 	@echo + LD $@
 	@$(LD) -o $@ $(OBJS) $(LDFLAGS) $(ARCHIVES) $(LIBS)
 
