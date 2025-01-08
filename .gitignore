@@ -9,6 +9,8 @@
 !*.sh
 !README.md
 !Kconfig
+!resource/*.jpg
+!resource/*.png
 !resource/placeholder
 !assets/*
 !configs/*
