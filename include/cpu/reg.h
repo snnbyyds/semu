@@ -120,6 +120,7 @@ static inline word_t *csr_get_ptr(CSR_Number number) {
         case MCAUSE: // 0x342
             return &cpu.csr_mcause;
         default:
+            Error("%x", number);
             assert(0);
     }
     return NULL;

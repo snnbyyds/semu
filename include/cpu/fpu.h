@@ -3,6 +3,8 @@
 
 #include "reg.h"
 
+/* REF: https://github.com/sysprog21/rv32emu/blob/c62d2317730c77b3c5e1258bbbe25df02b409145/src/softfloat.h */
+
 /* S | Exponent (8 bits) | Mantissa (23 bits) */
 #define FLOAT_SIGN_MASK 0x80000000
 #define FLOAT_EXPN_MASK 0x7f800000

@@ -9,39 +9,46 @@ typedef struct {
     vaddr_t dnpc; // Dynamic next PC
 } exec_t;
 
+typedef void (*decode_t)(uint32_t, exec_t *);
+
 // Instruction decode masks
 enum {
-    // Shared
+    // Rv32 Shared
     OPCODE       = 0b00000000000000000000000001111111,
     FUNCT3       = 0b00000000000000000111000000000000,
     FUNCT7       = 0b11111110000000000000000000000000,
     RD           = 0b00000000000000000000111110000000,
     RS1          = 0b00000000000011111000000000000000,
     RS2          = 0b00000001111100000000000000000000,
+    INST_6_2     = 0b00000000000000000000000001111100,
 
-    // R_type
+    // R-type
 
-    // I_type
+    // I-type
     FI_IMM       = 0b11111111111100000000000000000000,
 
-    // S_type
+    // S-type
     FS_IMM_4_0   = 0b00000000000000000000111110000000,
     FS_IMM_11_5  = 0b11111110000000000000000000000000,
 
-    // B_type
+    // B-type
     FB_IMM_11    = 0b00000000000000000000000010000000,
     FB_IMM_4_1   = 0b00000000000000000000111100000000,
     FB_IMM_10_5  = 0b01111110000000000000000000000000,
     FB_IMM_12    = 0b10000000000000000000000000000000,
 
-    // U_type
+    // U-type
     FU_IMM_31_12 = 0b11111111111111111111000000000000,
 
-    // J_type
+    // J-type
     FJ_IMM_19_12 = 0b00000000000011111111000000000000,
     FJ_IMM_11    = 0b00000000000100000000000000000000,
     FJ_IMM_10_1  = 0b01111111111000000000000000000000,
     FJ_IMM_20    = 0b10000000000000000000000000000000,
+
+    // R4-type
+    FR4_FMT      = 0b00000110000000000000000000000000,
+    FR4_RS3      = 0b11111000000000000000000000000000,
 };
 
 static inline uint32_t decode_opcode(uint32_t inst) {
@@ -58,6 +65,10 @@ static inline uint32_t decode_rs1(uint32_t inst) {
 
 static inline uint32_t decode_rs2(uint32_t inst) {
     return (inst & RS2) >> 20;
+}
+
+static inline uint32_t decode_rs3(uint32_t inst) {
+    return (inst & FR4_RS3) >> 27;
 }
 
 static inline uint32_t decode_funct3(uint32_t inst) {
@@ -88,6 +99,6 @@ static inline int32_t decode_immJ(uint32_t inst) {
     return (int32_t)((inst & FJ_IMM_20) | ((inst & FJ_IMM_19_12) << 11) | ((inst & FJ_IMM_11) << 2) | ((inst & FJ_IMM_10_1) >> 9)) >> 11;
 }
 
-void init_inst_pool();
+#define decode_rm decode_funct3
 
 #endif
