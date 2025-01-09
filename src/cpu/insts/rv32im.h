@@ -34,35 +34,42 @@ static inline void op_load(uint32_t inst, exec_t *info) {
 
 /* I-type */
 static inline void op_imm(uint32_t inst, exec_t *info) {
-    const uint32_t imm = IMM(I);
+    const uint32_t __imm = IMM(I);
+    const uint32_t __rd = decode_rd(inst);
+
+    if (unlikely(!__rd)) {
+        /* nop */
+        return;
+    }
+
     switch (decode_funct3(inst)) {
         case 0: /* addi */
-            R(rd) = R(rs1) + imm;
+            R(__rd) = R(rs1) + __imm;
             break;
         case 1: /* slli */
-            R(rd) = R(rs1) << (imm & 0x3f);
+            R(__rd) = R(rs1) << (__imm & 0x3f);
             break;
         case 2: /* slti */
-            R(rd) = (sword_t)R(rs1) < (sword_t)imm;
+            R(__rd) = (sword_t)R(rs1) < (sword_t)__imm;
             break;
         case 3: /* sltiu */
-            R(rd) = R(rs1) < imm;
+            R(__rd) = R(rs1) < __imm;
             break;
         case 4: /* xori */
-            R(rd) = R(rs1) ^ imm;
+            R(__rd) = R(rs1) ^ __imm;
             break;
         case 5:
-            if (imm & ~0x1f) { /* srai */
-                R(rd) = (sword_t)R(rs1) >> (imm & 0x3f);
+            if (__imm & ~0x1f) { /* srai */
+                R(__rd) = (sword_t)R(rs1) >> (__imm & 0x3f);
             } else { /* srli */
-                R(rd) = R(rs1) >> (imm & 0x3f);
+                R(__rd) = R(rs1) >> (__imm & 0x3f);
             }
             break;
         case 6: /* ori */
-            R(rd) = R(rs1) | imm;
+            R(__rd) = R(rs1) | __imm;
             break;
         case 7: /* andi */
-            R(rd) = R(rs1) & imm;
+            R(__rd) = R(rs1) & __imm;
             break;
         default:
             unimpl(inst, info);
