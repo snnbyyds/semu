@@ -73,16 +73,16 @@ make run IMG=/path/fceux-mario.bin
 * expression calculator (NOT implemented)
 
 #### difftest
-* difftest with NEMU (DUT: SEMU, REF: https://github.com/ics-ext/nemu-ref)
+* difftest with NEMU (DUT: SEMU, REF: https://github.com/ics-ext/nemu-ref, not supporting RV32F yet)
 * serve as a REF for difftest (NOT implemented)
 
 ### CPU Simulation `src/cpu`
-* Common RV32IM instructions (`src/cpu/inst.c`)
+* Common RV32IMF instructions (`src/cpu/inst.c`, RV32F still under test)
 * GPRs
 * CSRs (Basic ones)
+* FPRs
 * Fetch, decode, execute cycle (`src/cpu/cpu.c`)
 * Basic privileged ISA
-* FPU (TODO)
 
 ( TODO: Make it running even FASTER )
 
