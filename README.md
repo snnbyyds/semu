@@ -77,7 +77,7 @@ make run IMG=/path/fceux-mario.bin
 * serve as a REF for difftest (NOT implemented)
 
 ### CPU Simulation `src/cpu`
-* Common RV32IMF instructions (`src/cpu/inst.c`, RV32F still under test)
+* Common RV32IMAF instructions (`src/cpu/inst.c`, RV32A still under test)
 * GPRs
 * CSRs (Basic ones)
 * FPRs
