@@ -2,6 +2,7 @@
 #include <utils/state.h>
 
 #include "insts/rv32im.h" /* RV32I and RV32M */
+#include "insts/rv32a.h"  /* RV32A */
 #include "insts/rv32f.h"  /* RV32F */
 
 static uint32_t inst;
@@ -17,19 +18,19 @@ decode_t unimpl = op_err;
 
 __attribute__((always_inline))
 static inline void inst_decode_and_exec(exec_t *info) {
-    /* Basic RV32IMF opcode map */
-    #define ______ op_err
+    /* Basic RV32IMAF opcode map */
+    #define ____________ op_err
     static const decode_t opcode_map[] = {
-        [0] = op_load, [1] = op_load_fp, [2] = ______, [3] = ______,
-        [4] = op_imm, [5] = op_auipc, [6] = ______, [7] = ______,
-        [8] = op_store, [9] = op_store_fp, [10] = ______, [11] = ______,
-        [12] = op_op, [13] = op_lui, [14] = ______, [15] = ______,
-        [16] = op_madd, [17] = op_msub, [18] = op_nmsub, [19] = op_nmadd,
-        [20] = op_op_fp, [21] = ______, [22] = ______, [23] = ______,
-        [24] = op_branch, [25] = op_jalr, [26] = ______, [27] = op_jal,
-        [28] = op_system, [29] = ______, [30] = ______, [31] = ______,
+        [0]  = op_load,   [1]  = op_load_fp,   [2]  = ____________, [3]  = ____________,
+        [4]  = op_imm,    [5]  = op_auipc,     [6]  = ____________, [7]  = ____________,
+        [8]  = op_store,  [9]  = op_store_fp,  [10] = ____________, [11] = op_amo,
+        [12] = op_op,     [13] = op_lui,       [14] = ____________, [15] = ____________,
+        [16] = op_madd,   [17] = op_msub,      [18] = op_nmsub,     [19] = op_nmadd,
+        [20] = op_op_fp,  [21] = ____________, [22] = ____________, [23] = ____________,
+        [24] = op_branch, [25] = op_jalr,      [26] = ____________, [27] = op_jal,
+        [28] = op_system, [29] = ____________, [30] = ____________, [31] = ____________,
     };
-    #undef ______
+    #undef ____________
 
     /* Decode the instruction */
     opcode_map[(inst & INST_6_2) >> 2](inst, info);
