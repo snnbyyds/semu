@@ -2,117 +2,115 @@
 #include <cpu/cpu.h>
 #include <cpu/reg.h>
 #include <memory.h>
+#include <utils/difftest.h>
 #include <utils/state.h>
 
-// Note that gpr and pc must be in consistent with our CPU_State
-typedef struct {
-    word_t gpr[32];
-    word_t pc;
-} NEMU_CPU_Status;
+/*
+ * Difftest Framework for SEMU
+ * 
+ * This difftest framework is an enhanced version derived from NEMU's framework.
+ * It serves as a powerful debugging and verification tool for the SEMU RISC-V emulator.
+ * 
+ * Functionality:
+ * - The difftest framework performs **differential testing** by running both SEMU (the DUT - Device Under Test) 
+ *   and a reference implementation (e.g., NEMU or Spike) in parallel.
+ * - After executing each instruction in SEMU, the framework compares the states of SEMU and the reference,
+ *   including general-purpose registers, program counters, and optionally memory states.
+ * - If a mismatch is detected, it halts execution and provides detailed information about the discrepancy,
+ *   helping identify bugs or inconsistencies in the emulator's implementation.
+ * 
+ * This framework is especially useful for verifying complex instruction sets such as RV32A, RV32F, and RV32D,
+ * as well as extensions in SEMU. It plays a critical role in maintaining the reliability of the emulator.
+ */
 
-// May adjust according to different refs in the future.
-typedef NEMU_CPU_Status ref_context;
 
-extern size_t image_size;
-extern size_t builtin_img_size;
+#ifdef CONFIG_DIFFTEST
 
-static void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
-static void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
-static void (*ref_difftest_exec)(uint64_t n) = NULL;
-static void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
-static void (*ref_difftest_init)(int port) = NULL;
+static bool difftest_init_state = true;
 
-static bool to_dut = -1;
-static bool to_ref = -1;
+static void (*ref_difftest_init)(int port);
+static void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction);
+static void (*ref_difftest_regcpy)(void *dut, bool direction);
+static void (*ref_difftest_exec)(uint64_t n);
+static void (*ref_difftest_raise_intr)(uint64_t NO);
 
-static bool ref_skip = false;
+static riscv_context_t ref_ctx = {};
+static bool is_skip_ref = false;
 
-static const char *ref_so = "tools/nemu-diff/repo/build/riscv32-nemu-interpreter-so";
+#define FAIL(cond, ...) ({ \
+    if (!cond) { \
+        difftest_init_state = false; \
+        __VA_ARGS__; \
+    } \
+})
 
-static void difftest_load_ref_so() {
-    void *handle_ref = dlopen(ref_so, RTLD_LAZY);
-    assert(handle_ref);
-
-    ref_difftest_memcpy = dlsym(handle_ref, "difftest_memcpy");
-    ref_difftest_regcpy = dlsym(handle_ref, "difftest_regcpy");
-    ref_difftest_exec = dlsym(handle_ref, "difftest_exec");
-    ref_difftest_raise_intr = dlsym(handle_ref, "difftest_raise_intr");
-    ref_difftest_init = dlsym(handle_ref, "difftest_init");
-    assert(ref_difftest_memcpy && ref_difftest_memcpy && ref_difftest_exec && ref_difftest_raise_intr && ref_difftest_init);
-
-    const void *res = NULL;
-
-    res = dlsym(handle_ref, "to_dut");
-    assert(res);
-    to_dut = (bool)*(uint32_t *)res;
-
-    res = dlsym(handle_ref, "to_ref");
-    assert(res);
-    to_ref = (bool)*(uint32_t *)res;
-
-    assert(to_dut != to_ref);
-
-    Log("Loaded ref_so at %s", ref_so);
-}
-
-static void difftest_sync_image() {
-    ref_difftest_memcpy(CONFIG_RESET_VECTOR, GUEST_TO_HOST(CONFIG_RESET_VECTOR), image_size == -1 ? builtin_img_size : image_size, to_ref);
-}
-
-static void difftest_sync_context() {
-    ref_difftest_regcpy(&cpu, to_ref);
-    ref_difftest_memcpy(CONFIG_MBASE, GUEST_TO_HOST(CONFIG_MBASE), CONFIG_MSIZE, to_ref);
-}
-
-static bool difftest_check_reg() {
-    static ref_context ref_cpu = {};
-
+static inline bool check_registers() {
     bool ret = true;
-    ref_difftest_regcpy(&ref_cpu, to_dut);
-    if (cpu.pc != ref_cpu.pc) {
-        Error("Wrong PC!");
-        printf("ref: 0x%08x | dut: 0x%08x\n", ref_cpu.pc, cpu.pc);
-        ret = false;
-    }
+    /* Check gprs */
     for (size_t i = 0; i < NR_GPR; i++) {
-        if (ref_cpu.gpr[i] != gpr(i)) {
-            Error("register value not match for %s at pc 0x%08x", reg_val_to_name(i), cpu.pc);
-            printf("ref: 0x%08x | dut: 0x%08x\n", ref_cpu.gpr[i], gpr(i));
+        if (ref_ctx.gpr[i] != gpr(i)) {
             ret = false;
+            Error("Detected mismatch for %s! ref: 0x%08x | dut: 0x%08x",
+                reg_val_to_name(i), ref_ctx.gpr[i], gpr(i));
         }
     }
+    /* Check fprs */
+#ifdef CONFIG_DIFFTEST_REF_SPIKE
+    for (size_t i = 0; i < NR_GPR; i++) {
+        if (ref_ctx.fpr[i].v != fpr(i).v) {
+            ret = false;
+            Error("Detected mismatch for %s! ref: 0x%08x | dut: 0x%08x",
+                fpr_val_to_name(i), ref_ctx.fpr[i].v, fpr(i).v);
+        }
+    }
+#endif
     return ret;
 }
 
-static void difftest_sync_intr() {
-    /* Sync intr status */
-    // TODO
-}
-
-void difftest_request_skip_step() {
-    ref_skip = true;
+void difftest_skip_ref() {
+    is_skip_ref = true;
 }
 
 void difftest_exec_once() {
-    if (ref_skip) {
-        ref_skip = false;
-        difftest_sync_context();
+    FAIL(!difftest_init_state, return);
+    if (is_skip_ref) {
+        /* Sync DUT registers to REF */
+        ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+        is_skip_ref = false;
         return;
     }
     ref_difftest_exec(1);
-    if (!difftest_check_reg()) {
+    ref_difftest_regcpy(&ref_ctx, DIFFTEST_TO_DUT);
+    if (!check_registers()) {
         SET_STATE(ABORT);
-        return;
     }
-    difftest_sync_intr();
 }
 
-void init_difftest() {
-    Info("Initializing difftest...");
-    Warn("This will significantly reduce the performance.");
+void init_difftest(const char *ref_so, int port, size_t imgsize) {
+    FAIL(!ref_so || !*ref_so, return);
 
-    difftest_load_ref_so();
-    ref_difftest_init(-1);
-    difftest_sync_image();
-    difftest_sync_context();
+    void *handle = dlopen(ref_so, RTLD_LAZY);
+    FAIL(!handle, return);
+
+    ref_difftest_init = dlsym(handle, "ref_difftest_init");
+    ref_difftest_memcpy = dlsym(handle, "difftest_memcpy");
+    ref_difftest_regcpy = dlsym(handle, "difftest_regcpy");
+    ref_difftest_exec = dlsym(handle, "difftest_exec");
+    ref_difftest_raise_intr = dlsym(handle, "difftest_raise_intr");
+    FAIL(!ref_difftest_init || !ref_difftest_memcpy ||
+        !ref_difftest_init || !ref_difftest_raise_intr,
+        return);
+
+    ref_difftest_init(port);
+
+    ref_difftest_memcpy(CONFIG_RESET_VECTOR, GUEST_TO_HOST(CONFIG_RESET_VECTOR),
+        imgsize, DIFFTEST_TO_REF);
 }
+
+#else
+
+void difftest_exec_once() {}
+void difftest_skip_ref() {}
+void init_difftest(const char *ref_so, int port, size_t imgsize) {}
+
+#endif

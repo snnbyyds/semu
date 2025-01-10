@@ -1,0 +1,10 @@
+ifdef CONFIG_DIFFTEST
+DIFF_REF_PATH = $(SEMU_HOME)/$(call remove_quote,$(CONFIG_DIFFTEST_REF_PATH))
+DIFF_REF_SO = $(DIFF_REF_PATH)/build/$(call remove_quote,$(CONFIG_DIFFTEST_REF_NAME))
+MKFLAGS = GUEST_ISA=riscv32 SHARE=1 ENGINE=interpreter
+
+$(DIFF_REF_SO):
+	$(MAKE) -C $(DIFF_REF_PATH) $(MKFLAGS)
+
+.PHONY: $(DIFF_REF_SO)
+endif

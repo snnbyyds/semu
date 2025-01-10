@@ -128,5 +128,7 @@ static inline word_t *csr_get_ptr(CSR_Number number) {
 
 void reg_val_display();
 char *reg_val_to_name(size_t idx);
+void fpr_val_display();
+char *fpr_val_to_name(size_t idx);
 
 #endif

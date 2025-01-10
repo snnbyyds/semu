@@ -32,4 +32,6 @@ typedef word_t ioaddr_t;
 #define PGSIZE 4096
 #define PG_ALIGN __attribute((aligned(PGSIZE)))
 
+#define __EXPORT __attribute__((visibility("default")))
+
 #endif

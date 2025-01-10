@@ -1,3 +1,27 @@
-config ENABLE_DIFFTEST
+menuconfig DIFFTEST
   bool "Enable difftest"
   default n
+
+if DIFFTEST
+choice ENABLE_DIFFTEST
+  prompt "Reference design"
+  default DIFFTEST_REF_SPIKE
+  depends on DIFFTEST
+config DIFFTEST_REF_NEMU
+  bool "NEMU"
+config DIFFTEST_REF_SPIKE
+  bool "Spike"
+endchoice
+
+config DIFFTEST_REF_PATH
+  string
+  default "tools/nemu-diff/repo" if DIFFTEST_REF_NEMU
+  default "tools/spike-diff" if DIFFTEST_REF_SPIKE
+  default "none"
+
+config DIFFTEST_REF_NAME
+  string
+  default "riscv32-nemu-interpreter-so" if DIFFTEST_REF_NEMU
+  default "riscv32-spike-so" if DIFFTEST_REF_SPIKE
+  default "none"
+endif

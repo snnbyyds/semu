@@ -1,11 +1,12 @@
 include $(SEMU_HOME)/scripts/build.mk
+include $(SEMU_HOME)/tools/difftest.mk
 
 override ARGS ?=
 
 IMG ?=
 SEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
-run-env: $(BINARY)
+run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
 	$(SEMU_EXEC)

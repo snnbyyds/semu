@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <string.h>
 #include <system.h>
+#include <utils/difftest.h>
 #include <utils/state.h>
 
 #define __USE_GNU
@@ -33,8 +34,6 @@ static const uint32_t builtin_img[] = {
 
 size_t builtin_img_size = sizeof(builtin_img);
 
-void difftest_exec_once();
-
 __attribute__((always_inline))
 static inline void exec_once() {
     // exec the inst
@@ -42,6 +41,9 @@ static inline void exec_once() {
     exec_t exec_info = { .snpc = cpu.pc, .pc = cpu.pc };
     inst_exec_once(&exec_info);
     cpu.pc = exec_info.dnpc;
+#ifdef CONFIG_DIFFTEST
+    difftest_exec_once();
+#endif
 }
 
 // cpu_exec in child thread, arg as the step
@@ -54,11 +56,6 @@ static void *cpu_exec_thread(void *arg) {
         if (intr != -1) {
             cpu.pc = ISA_RAISE_INTR(intr, cpu.pc);
         }
-
-#ifdef CONFIG_ENABLE_DIFFTEST
-        // TODO: Sync intr status to REF
-        difftest_exec_once();
-#endif
 
 #ifdef CONFIG_PAUSE_PC
         if (unlikely(sdb_pause_pc != -1 && cpu.pc == sdb_pause_pc)) {

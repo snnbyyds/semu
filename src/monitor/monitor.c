@@ -2,17 +2,19 @@
 #include <memory.h>
 #include <device/device.h>
 #include <device/mmio.h>
+#include <utils/difftest.h>
 #include <utils/state.h>
 #include <utils/timer.h>
 #include <getopt.h>
+#include <string.h>
 
 void init_cpu(bool img_builtin);
-void init_difftest();
 void init_disasm();
 void init_memory();
 void sdb_batchmode_on();
 
 size_t image_size = -1;
+extern size_t builtin_img_size;
 
 static char *image = NULL;
 
@@ -90,8 +92,20 @@ void init_monitor(int argc, char *argv[]) {
 #ifdef CONFIG_ENABLE_ITRACE
     init_disasm();
 #endif /* CONFIG_ENABLE_ITRACE */
-#ifdef CONFIG_ENABLE_DIFFTEST
-    init_difftest();
+#ifdef CONFIG_DIFFTEST
+#ifdef CONFIG_DIFFTEST_REF_SPIKE
+    init_difftest(
+        "tools/spike-diff/build/riscv32-spike-so",
+        0,
+        image_size == -1 ? builtin_img_size : image_size
+    );
+#else
+    init_difftest(
+        "tools/nemu-diff/repo/build/riscv32-nemu-interpreter-so",
+        0,
+        image_size == -1 ? builtin_img_size : image_size
+    );
+#endif
 #endif /* CONFIG_ENABLE_DIFFTEST */
     welcome();
 }
