@@ -1,6 +1,7 @@
 #include <memory.h>
 #include <device/mmio.h>
 #include <utils/difftest.h>
+#include <utils/state.h>
 
 #define NR_maps 16
 
@@ -66,7 +67,11 @@ static inline int findmap(ioaddr_t addr) {
 word_t mmio_read(ioaddr_t addr, size_t len) {
     difftest_skip_ref();
     int mapidx = findmap(addr);
-    Assert(mapidx != -1);
+    if (unlikely(mapidx == -1)) {
+        Error("Invalid addr: 0x%08x (pc: 0x%08x)", addr, cpu.pc);
+        SET_STATE(ABORT);
+        return -1;
+    }
     size_t offset = addr - maps[mapidx].low;
     if (maps[mapidx].io_handler) {
         maps[mapidx].io_handler(MMIO_READ, offset, len);
@@ -77,7 +82,11 @@ word_t mmio_read(ioaddr_t addr, size_t len) {
 void mmio_write(ioaddr_t addr, size_t len, word_t data) {
     difftest_skip_ref();
     int mapidx = findmap(addr);
-    Assert(mapidx != -1);
+    if (unlikely(mapidx == -1)) {
+        Error("Invalid addr: 0x%08x (pc: 0x%08x)", addr, cpu.pc);
+        SET_STATE(ABORT);
+        return;
+    }
     size_t offset = addr - maps[mapidx].low;
     HOST_WRITE(maps[mapidx].space + offset, len, data);
     if (maps[mapidx].io_handler) {
