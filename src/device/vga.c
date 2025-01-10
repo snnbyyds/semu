@@ -34,7 +34,7 @@ static inline void semu_bootanim() {
     const SDL_FRect destRect = {0, 0, SCREEN_W * 3, SCREEN_H * 3};
     SDL_RenderTexture(renderer, imageTexture, NULL, &destRect);
     SDL_RenderPresent(renderer);
-    SDL_Delay(1024);
+    SDL_Delay(512);
 
     SDL_DestroySurface(imageSurface);
     SDL_DestroyTexture(imageTexture);
