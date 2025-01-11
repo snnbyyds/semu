@@ -73,11 +73,12 @@ make run IMG=/path/fceux-mario.bin
 * expression calculator (NOT implemented)
 
 #### difftest
-* difftest with NEMU (DUT: SEMU, REF: https://github.com/ics-ext/nemu-ref, not supporting RV32F yet)
+* difftest with NEMU (DUT: SEMU, REF: https://github.com/ics-ext/nemu-ref, not supporting RV32AFD yet)
+* difftest with Spike
 * serve as a REF for difftest (NOT implemented)
 
 ### CPU Simulation `src/cpu`
-* Common RV32IMAF instructions (`src/cpu/inst.c`, RV32A still under test)
+* Common RV32IMAFD instructions (`src/cpu/inst.c`)
 * GPRs
 * CSRs (Basic ones)
 * FPRs
