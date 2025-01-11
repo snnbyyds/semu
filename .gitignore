@@ -14,5 +14,6 @@
 !resource/placeholder
 !assets/*
 !configs/*
+!LICENSE
 include/config
 include/generated
