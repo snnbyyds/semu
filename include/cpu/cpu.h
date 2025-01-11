@@ -6,7 +6,14 @@
 #define NR_GPR 32
 #define NR_FPR 32
 #define NR_CSR 4096
-#define FLEN 32
+#define FLEN 64
+
+typedef union {
+    float64_t _64;
+    uint64_t v64;
+    float32_t _32;
+    uint32_t v;
+} fpr_t;
 
 typedef struct {
     /* integer registers */
@@ -14,7 +21,7 @@ typedef struct {
     vaddr_t pc;
 
     /* float registers */
-    rv_float_t fpr[NR_FPR];
+    fpr_t fpr[NR_FPR];
 
     /* csr registers */
     uint32_t csr_fcsr;     // 0x003

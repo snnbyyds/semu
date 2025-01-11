@@ -2,11 +2,13 @@
 #define __INST_MACROS_H__
 
 #include <memory.h>
-#include <cpu/reg.h>
+#include <cpu/fpu.h>
 #include <cpu/inst.h>
 
 #define R(i) gpr(i)
 #define F(i) fpr(i)
+#define F32(i) ACCESS_F32(i)
+#define F64(i) ACCESS_F64(i)
 
 #define Mr_w vaddr_read_w
 #define Mr_s vaddr_read_s

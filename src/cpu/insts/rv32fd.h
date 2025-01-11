@@ -1,5 +1,5 @@
-#ifndef __RV32F_H__
-#define __RV32F_H__
+#ifndef __RV32FD_H__
+#define __RV32FD_H__
 
 #include <cpu/fpu.h>
 #include "macros.h"
@@ -9,7 +9,9 @@ extern decode_t unimpl;
 /* I-type */
 static inline void op_load_fp(uint32_t inst, exec_t *info) {
     /* flw */
-    F(rd).v = Mr_w(R(rs1) + IMM(I));
+    const uint32_t __rd = rd;
+    F(__rd).v = Mr_w(R(rs1) + IMM(I));
+    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
 }
 
 /* S-type */
@@ -21,40 +23,48 @@ static inline void op_store_fp(uint32_t inst, exec_t *info) {
 /* R4-type */
 static inline void op_madd(uint32_t inst, exec_t *info) {
     /* fmadd.s */
+    const uint32_t __rd = rd;
     set_rounding_mode(decode_rm(inst));
-    F(rd) = f32_mulAdd(F(rs1), F(rs2), F(rs3));
+    F32(__rd) = f32_mulAdd(F(rs1)._32, F(rs2)._32, F(rs3)._32);
+    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
     set_fflag();
 }
 
 /* R4-type */
 static inline void op_msub(uint32_t inst, exec_t *info) {
     /* fmsub.s */
+    const uint32_t __rd = rd;
     set_rounding_mode(decode_rm(inst));
-    rv_float_t t = F(rs3);
+    float32_t t = F32(rs3);
     t.v ^= FLOAT_SIGN_MASK;
-    F(rd) = f32_mulAdd(F(rs1), F(rs2), t);
+    F32(__rd) = f32_mulAdd(F32(rs1), F32(rs2), t);
+    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
     set_fflag();
 }
 
 /* R4-type */
 static inline void op_nmsub(uint32_t inst, exec_t *info) {
     /* fnmsub.s */
+    const uint32_t __rd = rd;
     set_rounding_mode(decode_rm(inst));
-    rv_float_t t = F(rs1);
+    float32_t t = F32(rs1);
     t.v ^= FLOAT_SIGN_MASK;
-    F(rd) = f32_mulAdd(t, F(rs2), F(rs3));
+    F32(__rd) = f32_mulAdd(t, F32(rs2), F32(rs3));
+    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
     set_fflag();
 }
 
 /* R4-type */
 static inline void op_nmadd(uint32_t inst, exec_t *info) {
     /* fnmadd.s */
+    const uint32_t __rd = rd;
     set_rounding_mode(decode_rm(inst));
-    rv_float_t t1 = F(rs1);
-    rv_float_t t3 = F(rs3);
+    float32_t t1 = F32(rs1);
+    float32_t t3 = F32(rs3);
     t1.v ^= FLOAT_SIGN_MASK;
     t3.v ^= FLOAT_SIGN_MASK;
-    F(rd) = f32_mulAdd(t1, F(rs2), t3);
+    F32(__rd) = f32_mulAdd(t1, F32(rs2), t3);
+    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
     set_fflag();
 }
 
@@ -66,38 +76,46 @@ static inline void op_op_fp(uint32_t inst, exec_t *info) {
     switch (decode_funct7(inst)) {
         case 0b0000000: /* fadd.s */
             set_rounding_mode(decode_rm(inst));
-            F(__rd) = f32_add(F(__rs1), F(__rs2));
+            F32(__rd) = f32_add(F32(__rs1), F32(__rs2));
+            SET_FPR_NAN_BOX_UPPER_BITS(__rd);
             set_fflag();
             break;
         case 0b0000100: /* fsub.s */
             set_rounding_mode(decode_rm(inst));
-            F(__rd) = f32_sub(F(__rs1), F(__rs2));
+            F32(__rd) = f32_sub(F32(__rs1), F32(__rs2));
+            SET_FPR_NAN_BOX_UPPER_BITS(__rd);
             break;
         case 0b0001000: /* fmul.s */
             set_rounding_mode(decode_rm(inst));
-            F(__rd) = f32_mul(F(__rs1), F(__rs2));
+            F32(__rd) = f32_mul(F32(__rs1), F32(__rs2));
+            SET_FPR_NAN_BOX_UPPER_BITS(__rd);
             set_fflag();
             break;
         case 0b0001100: /* fdiv.s */
             set_rounding_mode(decode_rm(inst));
-            F(__rd) = f32_div(F(__rs1), F(__rs2));
+            F32(__rd) = f32_div(F32(__rs1), F32(__rs2));
+            SET_FPR_NAN_BOX_UPPER_BITS(__rd);
             set_fflag();
             break;
         case 0b0101100: /* fsqrt.s */
             set_rounding_mode(decode_rm(inst));
-            F(__rd) = f32_sqrt(F(__rs1));
+            F32(__rd) = f32_sqrt(F32(__rs1));
+            SET_FPR_NAN_BOX_UPPER_BITS(__rd);
             set_fflag();
             break;
         case 0b0010000:
             switch (decode_rm(inst)) {
                 case 0b000: /* fsgnj.s */
                     F(__rd).v = (F(__rs1).v & ~FLOAT_SIGN_MASK) | (F(__rs2).v & FLOAT_SIGN_MASK);
+                    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
                     break;
                 case 0b001: /* fsgnjn.s */
                     F(__rd).v = (F(__rs1).v & ~FLOAT_SIGN_MASK) | (~F(__rs2).v & FLOAT_SIGN_MASK);
+                    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
                     break;
                 case 0b010: /* fsgnjx.s */
                     F(__rd).v = F(__rs1).v ^ (F(__rs2).v & FLOAT_SIGN_MASK);
+                    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
                     break;
                 default:
                     unimpl(inst, info);
@@ -108,12 +126,12 @@ static inline void op_op_fp(uint32_t inst, exec_t *info) {
             switch (__rs2) {
                 case 0b00000: /* fcvt.w.s */
                     set_rounding_mode(decode_rm(inst));
-                    R(__rd) = f32_to_i32(F(__rs1), softfloat_roundingMode, true);
+                    R(__rd) = f32_to_i32(F32(__rs1), softfloat_roundingMode, true);
                     set_fflag();
                     break;
                 case 0b00001: /* fcvt.wu.s */
                     set_rounding_mode(decode_rm(inst));
-                    R(__rd) = f32_to_ui32(F(__rs1), softfloat_roundingMode, true);
+                    R(__rd) = f32_to_ui32(F32(__rs1), softfloat_roundingMode, true);
                     set_fflag();
                     break;
                 default:
@@ -124,28 +142,32 @@ static inline void op_op_fp(uint32_t inst, exec_t *info) {
         case 0b0010100:
             switch (decode_rm(inst)) {
                 case 0b000: /* fmin.s */
-                    if (f32_isSignalingNaN(F(__rs1)) || f32_isSignalingNaN(F(__rs2))) {
+                    if (f32_isSignalingNaN(F32(__rs1)) || f32_isSignalingNaN(F32(__rs2))) {
                         cpu.csr_fcsr |= FCSR_NV_MASK;
                     }
-                    const bool less = f32_lt_quiet(F(__rs1), F(__rs2)) ||
-                                (f32_eq(F(__rs1), F(__rs2)) &&
+                    const bool less = f32_lt_quiet(F32(__rs1), F32(__rs2)) ||
+                                (f32_eq(F32(__rs1), F32(__rs2)) &&
                                 (F(__rs1).v & FLOAT_SIGN_MASK));
                     if (is_nan(F(__rs1).v) && is_nan(F(__rs2).v))
                         F(__rd).v = 0x7fc00000; /* The canonical NaN */
                     else
-                        F(__rd) = (less || is_nan(F(__rs2).v) ? F(__rs1) : F(__rs2));
+                        F32(__rd) = (less || is_nan(F(__rs2).v) ? F32(__rs1) : F32(__rs2));
+                        SET_FPR_NAN_BOX_UPPER_BITS(__rd);
                     break;
                 case 0b001: /* fmax.s */
-                    if (f32_isSignalingNaN(F(__rs1)) || f32_isSignalingNaN(F(__rs2))) {
+                    if (f32_isSignalingNaN(F32(__rs1)) || f32_isSignalingNaN(F32(__rs2))) {
                         cpu.csr_fcsr |= FCSR_NV_MASK;
                     }
-                    const bool greater = f32_lt_quiet(F(__rs2), F(__rs1)) ||
-                                (f32_eq(F(__rs1), F(__rs2)) &&
+                    const bool greater = f32_lt_quiet(F32(__rs2), F32(__rs1)) ||
+                                (f32_eq(F32(__rs1), F32(__rs2)) &&
                                 (F(__rs2).v & FLOAT_SIGN_MASK));
-                    if (is_nan(F(__rs1).v) && is_nan(F(__rs2).v))
+                    if (is_nan(F(__rs1).v) && is_nan(F(__rs2).v)) {
                         F(__rd).v = 0x7fc00000; /* The canonical NaN */
-                    else
-                        F(__rd) = (greater || is_nan(F(__rs2).v) ? F(__rs1) : F(__rs2));
+                        SET_FPR_NAN_BOX_UPPER_BITS(__rd);
+                    } else {
+                        F32(__rd) = (greater || is_nan(F(__rs2).v) ? F32(__rs1) : F32(__rs2));
+                        SET_FPR_NAN_BOX_UPPER_BITS(__rd);
+                    }
                     break;
                 default:
                     unimpl(inst, info);
@@ -168,15 +190,15 @@ static inline void op_op_fp(uint32_t inst, exec_t *info) {
         case 0b1010000:
             switch (decode_rm(inst)) {
                 case 0b010: /* feq.s */
-                    R(__rd) = f32_eq(F(__rs1), F(__rs2));
+                    R(__rd) = f32_eq(F32(__rs1), F32(__rs2));
                     set_fflag();
                     break;
                 case 0b001: /* flt.s */
-                    R(__rd) = f32_lt(F(__rs1), F(__rs2));
+                    R(__rd) = f32_lt(F32(__rs1), F32(__rs2));
                     set_fflag();
                     break;
                 case 0b000: /* fle.s */
-                    R(__rd) = f32_le(F(__rs1), F(__rs2));
+                    R(__rd) = f32_le(F32(__rs1), F32(__rs2));
                     set_fflag();
                     break;
                 default:
@@ -188,12 +210,14 @@ static inline void op_op_fp(uint32_t inst, exec_t *info) {
             switch (__rs2) {
                 case 0b00000: /* fcvt.s.w */
                     set_rounding_mode(decode_rm(inst));
-                    F(__rd) = i32_to_f32(R(__rs1));
+                    F32(__rd) = i32_to_f32(R(__rs1));
+                    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
                     set_fflag();
                     break;
                 case 0b00001: /* fcvt.s.wu */
                     set_rounding_mode(decode_rm(inst));
-                    F(__rd) = ui32_to_f32(R(__rs1));
+                    F32(__rd) = ui32_to_f32(R(__rs1));
+                    SET_FPR_NAN_BOX_UPPER_BITS(__rd);
                     set_fflag();
                     break;
                 default:
@@ -203,6 +227,7 @@ static inline void op_op_fp(uint32_t inst, exec_t *info) {
             break;
         case 0b1111000: /* fmv.w.x */
             F(__rd).v = R(__rs1);
+            SET_FPR_NAN_BOX_UPPER_BITS(__rd);
             break;
         default:
             unimpl(inst, info);

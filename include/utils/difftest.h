@@ -2,6 +2,7 @@
 #define __DIFFTEST_H__
 
 #include <cpu/cpu.h>
+#include <cpu/fpu.h>
 
 #define DIFFTEST_OPS_INITIALIZER {NULL, NULL, NULL, NULL, NULL}
 
@@ -12,7 +13,7 @@ typedef struct {
 
 #ifdef CONFIG_DIFFTEST_REF_SPIKE
     /* float registers */
-    rv_float_t fpr[NR_FPR];
+    fpr_t fpr[NR_FPR];
 #endif
 } riscv_context_t;
 

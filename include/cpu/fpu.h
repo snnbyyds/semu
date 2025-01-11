@@ -119,4 +119,19 @@ static inline bool is_nan(uint32_t f) {
     return (f & FLOAT_EXPN_MASK) == FLOAT_EXPN_MASK && (f & FLOAT_FRAC_MASK);
 }
 
+/* Accesses a 32-bit single-precision floating-point
+ * value from the floating-point register at index `idx`.
+ */
+#define ACCESS_F32(idx) (cpu.fpr[idx]._32)
+
+/* Accesses a 64-bit single-precision floating-point
+ * value from the floating-point register at index `idx`.
+ */
+#define ACCESS_F64(idx) (cpu.fpr[idx]._64)
+
+#define SET_FPR_NAN_BOX_UPPER_BITS(idx) \
+    ({ \
+        cpu.fpr[idx].v64 |= 0xFFFFFFFF00000000ULL; \
+    })
+
 #endif

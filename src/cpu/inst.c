@@ -3,7 +3,7 @@
 
 #include "insts/rv32im.h" /* RV32I and RV32M */
 #include "insts/rv32a.h"  /* RV32A */
-#include "insts/rv32f.h"  /* RV32F */
+#include "insts/rv32fd.h" /* RV32FD */
 
 static uint32_t inst;
 
@@ -18,7 +18,7 @@ decode_t unimpl = op_err;
 
 __attribute__((always_inline))
 static inline void inst_decode_and_exec(exec_t *info) {
-    /* Basic RV32IMAF opcode map */
+    /* Basic RV32IMAFD opcode map */
     #define ____________ op_err
     static const decode_t opcode_map[] = {
         [0]  = op_load,   [1]  = op_load_fp,   [2]  = ____________, [3]  = ____________,

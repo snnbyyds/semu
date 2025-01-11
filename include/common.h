@@ -17,8 +17,6 @@
 #define VERSION 0.0
 #endif
 
-typedef float32_t rv_float_t;
-
 typedef uint32_t word_t;
 typedef int32_t sword_t;
 
