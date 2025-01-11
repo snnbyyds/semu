@@ -60,6 +60,7 @@ extern void *pmem;
             case 1: __ret = *(uint8_t *)(HADDR); break; \
             case 2: __ret = *(uint16_t *)(HADDR); break; \
             case 4: __ret = *(uint32_t *)(HADDR); break; \
+            case 8: __ret = *(uint64_t *)(HADDR); break; \
             default: assert(0); \
         } \
         __ret; \
@@ -72,14 +73,17 @@ extern void *pmem;
             case 1: *(uint8_t *)(HADDR) = (uint8_t)(DATA); break; \
             case 2: *(uint16_t *)(HADDR) = (uint16_t)(DATA); break; \
             case 4: *(uint32_t *)(HADDR) = (uint32_t)(DATA); break; \
+            case 8: *(uint64_t *)(HADDR) = (uint64_t)(DATA); break; \
             default: assert(0); \
         } \
     } while (0)
 
+uint64_t vaddr_read_d(vaddr_t addr);
 uint32_t vaddr_read_w(vaddr_t addr);
 uint16_t vaddr_read_s(vaddr_t addr);
 uint8_t vaddr_read_b(vaddr_t addr);
 
+void vaddr_write_d(vaddr_t addr, uint64_t data);
 void vaddr_write_w(vaddr_t addr, uint32_t data);
 void vaddr_write_s(vaddr_t addr, uint16_t data);
 void vaddr_write_b(vaddr_t addr, uint8_t data);

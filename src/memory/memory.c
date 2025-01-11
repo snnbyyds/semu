@@ -53,6 +53,7 @@ static inline paddr_t isa_mmu_translate(vaddr_t vaddr, mem_access_t type) {
             mmio_read(addr, LEN); \
     }
 
+PADDR_READ_IMPL(d, uint64_t, 8)
 PADDR_READ_IMPL(w, uint32_t, 4)
 PADDR_READ_IMPL(s, uint16_t, 2)
 PADDR_READ_IMPL(b, uint8_t, 1)
@@ -68,6 +69,7 @@ PADDR_READ_IMPL(b, uint8_t, 1)
         } \
     }
 
+PADDR_WRITE_IMPL(d, uint64_t, 8)
 PADDR_WRITE_IMPL(w, uint32_t, 4)
 PADDR_WRITE_IMPL(s, uint16_t, 2)
 PADDR_WRITE_IMPL(b, uint8_t, 1)
@@ -79,6 +81,7 @@ PADDR_WRITE_IMPL(b, uint8_t, 1)
         return paddr_read_ ## SIZE(addr); \
     }
 
+VADDR_READ_IMPL(d, uint64_t)
 VADDR_READ_IMPL(w, uint32_t)
 VADDR_READ_IMPL(s, uint16_t)
 VADDR_READ_IMPL(b, uint8_t)
@@ -90,6 +93,7 @@ VADDR_READ_IMPL(b, uint8_t)
         paddr_write_ ## SIZE(addr, data); \
     }
 
+VADDR_WRITE_IMPL(d, uint64_t)
 VADDR_WRITE_IMPL(w, uint32_t)
 VADDR_WRITE_IMPL(s, uint16_t)
 VADDR_WRITE_IMPL(b, uint8_t)
