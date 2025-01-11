@@ -16,8 +16,6 @@
   |    the CPU state structure)       |
   |  - mem_data_offset (offset to     |
   |    the memory data region)        |
-  |  - sr_state_offset (offset to the |
-  |    saved state register region)   |
   +-----------------------------------+ <- cpu_state_offset
   |                                   |
   |          CPU State                |
@@ -40,7 +38,7 @@
   Offsets in the header are specified in bytes relative to the start of the file.
 */
 
-#define FILE_VERSION 1
+#define FILE_VERSION 2
 #define MAGIC 0x50414e53554d4553ULL
 
 /* Definition of the Semusnapshot header structure */
@@ -52,7 +50,6 @@ typedef struct __attribute__((packed)) {
   uint8_t version;
   uint32_t cpu_state_offset;
   uint32_t mem_data_offset;
-  uint32_t sr_state_offset;
 } snapshot_hdr_t;
 
 static void *snapshot_buff = NULL;
@@ -62,7 +59,8 @@ static bool input_snapshot_valid = true;
 
 #define CHECK_FILE(BUFFER) \
     do { \
-        if (((snapshot_hdr_t *)BUFFER)->magic != MAGIC || ((snapshot_hdr_t *)BUFFER)->version != FILE_VERSION) { \
+        if (((snapshot_hdr_t *)BUFFER)->magic != MAGIC || \
+            ((snapshot_hdr_t *)BUFFER)->version != FILE_VERSION) { \
             input_snapshot_valid = false; \
             Error("Invalid file"); \
         } \
@@ -82,7 +80,9 @@ static void save_cpu_state() {
 }
 
 static void save_mem_state() {
-    memcpy(snapshot_buff + snapshot_file_hdr.mem_data_offset, GUEST_TO_HOST(CONFIG_MBASE), CONFIG_MSIZE);
+    memcpy(snapshot_buff + snapshot_file_hdr.mem_data_offset,
+        GUEST_TO_HOST(CONFIG_MBASE),
+        CONFIG_MSIZE);
     Info("Successfully saved Memory state");
 }
 
@@ -101,7 +101,8 @@ static void write_snapshot(const char *path) {
 static void read_snapshot(const char *path) {
     assert(snapshot_buff != NULL);
     FILE *file = fopen(path, "r");
-    if (file == NULL || fread(snapshot_buff, snapshot_buff_size, 1, file) <= 0) {
+    if (file == NULL ||
+        fread(snapshot_buff, snapshot_buff_size, 1, file) <= 0) {
         Warn("snapshot read failed!\n");
         input_snapshot_valid = false;
         return;
@@ -122,7 +123,9 @@ static void load_mem_state() {
     if (!input_snapshot_valid) {
         return;
     }
-    memcpy(GUEST_TO_HOST(CONFIG_MBASE), snapshot_buff + snapshot_file_hdr.mem_data_offset, CONFIG_MSIZE);
+    memcpy(GUEST_TO_HOST(CONFIG_MBASE),
+        snapshot_buff + snapshot_file_hdr.mem_data_offset,
+        CONFIG_MSIZE);
     Info("Memory state loaded");
 }
 
