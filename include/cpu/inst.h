@@ -79,6 +79,10 @@ static inline uint32_t decode_funct7(uint32_t inst) {
     return (inst & FUNCT7) >> 25;
 }
 
+static inline uint32_t decode_fmt(uint32_t inst) {
+    return (inst & FR4_FMT) >> 25;
+}
+
 static inline int32_t decode_immI(uint32_t inst) {
     return ((int32_t)(inst & FI_IMM)) >> 20;
 }

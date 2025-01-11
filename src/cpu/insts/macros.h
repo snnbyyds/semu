@@ -10,9 +10,11 @@
 #define F32(i) ACCESS_F32(i)
 #define F64(i) ACCESS_F64(i)
 
+#define Mr_d vaddr_read_d
 #define Mr_w vaddr_read_w
 #define Mr_s vaddr_read_s
 #define Mr_b vaddr_read_b
+#define Mw_d vaddr_write_d
 #define Mw_w vaddr_write_w
 #define Mw_s vaddr_write_s
 #define Mw_b vaddr_write_b
