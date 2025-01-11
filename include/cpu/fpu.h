@@ -134,4 +134,12 @@ static inline bool is_nan(uint32_t f) {
         cpu.fpr[idx].v64 |= 0xFFFFFFFF00000000ULL; \
     })
 
+__attribute__((always_inline))
+static inline float32_t unboxF32(fpr_t src) {
+    if (likely(src.v64 & 0xFFFFFFFF00000000ULL) == 0xFFFFFFFF00000000ULL) {
+        return src._32;
+    }
+    return (float32_t) { .v = 0x7fc00000 };
+}
+
 #endif
