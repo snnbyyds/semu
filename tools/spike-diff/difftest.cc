@@ -25,6 +25,13 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 #define NR_GPR 32
 #define NR_FPR 32
 
+typedef union {
+    float64_t _64;
+    uint64_t v64;
+    float32_t _32;
+    uint32_t v;
+} fpr_t;
+
 static std::vector<std::pair<reg_t, abstract_device_t*>> difftest_plugin_devices;
 static std::vector<std::string> difftest_htif_args;
 static std::vector<std::pair<reg_t, mem_t*>> difftest_mem(
@@ -47,7 +54,7 @@ struct diff_context_t {
   uint32_t pc;
 
   /* float registers */
-  rv_float_t fpr[NR_FPR];
+  fpr_t fpr[NR_FPR];
 };
 
 static sim_t* s = NULL;
@@ -69,7 +76,7 @@ void sim_t::diff_get_regs(void* diff_context) {
     ctx->gpr[i] = state->XPR[i];
   }
   for (int i = 0; i < NR_FPR; i++) {
-    ctx->fpr[i].v = (uint32_t)state->FPR[i].v[0];
+    ctx->fpr[i].v64 = state->FPR[i].v[0];
   }
   ctx->pc = state->pc;
 }
@@ -80,7 +87,7 @@ void sim_t::diff_set_regs(void* diff_context) {
     state->XPR.write(i, (sword_t)ctx->gpr[i]);
   }
   for (int i = 0; i < NR_FPR; i++) {
-    state->FPR.write(i, (float128_t) { .v = {ctx->fpr[i].v, 0} });
+    state->FPR.write(i, (float128_t) { .v = {ctx->fpr[i].v64, 0} });
   }
   state->pc = ctx->pc;
 }

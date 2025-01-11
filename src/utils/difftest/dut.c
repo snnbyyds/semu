@@ -56,11 +56,11 @@ static inline bool check_registers() {
     }
     /* Check fprs */
 #ifdef CONFIG_DIFFTEST_REF_SPIKE
-    for (size_t i = 0; i < NR_GPR; i++) {
-        if (ref_ctx.fpr[i].v != fpr(i).v) {
+    for (size_t i = 0; i < NR_FPR; i++) {
+        if (ref_ctx.fpr[i].v64 != fpr(i).v64) {
             ret = false;
-            Error("Detected mismatch for %s! ref: 0x%08x | dut: 0x%08x",
-                fpr_val_to_name(i), ref_ctx.fpr[i].v, fpr(i).v);
+            Error("Detected mismatch for %s! ref: 0x%08lx | dut: 0x%08lx",
+                fpr_val_to_name(i), ref_ctx.fpr[i].v64, fpr(i).v64);
         }
     }
 #endif
