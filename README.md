@@ -104,5 +104,15 @@ make run IMG=/path/fceux-mario.bin
 ## About HALs and programs
 I haven’t had the chance to develop our own Hardware Abstraction Layer, the `SAL` yet, so for now, I’ve only ported the `abstract-machine` as the abstraction layer. However, since the code in `abstract-machine`, `nanos-lite`, and `navy-apps` is related to **the ICS2024 Programming Assignment**, it ***cannot be made public***. Therefore, they will only be distributed in the form of precompiled binaries.
 
+## Refs
+Inspired by
+
+1. https://github.com/OpenXiangShan/NEMU
+2. https://github.com/NJU-ProjectN/nemu
+3. https://github.com/sysprog21/rv32emu
+4. https://github.com/riscv-software-src/riscv-isa-sim
+5. https://github.com/ksco/rvemu
+6. https://github.com/snnbyyds/NJU-ICS
+
 ## Contributing
 Feel free to fork the repository and submit a pull request if you’d like to contribute. Bug fixes, performance improvements, and new features are always welcome! Please ensure your contributions follow the coding standards and include appropriate tests.
