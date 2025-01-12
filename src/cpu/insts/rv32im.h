@@ -25,7 +25,7 @@
 extern decode_t unimpl;
 
 /* I-type */
-static inline void op_load(uint32_t inst, exec_t *info) {
+static inline void op_load(uint32_t inst, exec_t *restrict info) {
     switch (decode_funct3(inst)) {
         case 0: /* lb */
             R(rd) = (uint32_t)((int32_t)((int8_t)(Mr_b(R(rs1) + IMM(I)))));
@@ -49,7 +49,7 @@ static inline void op_load(uint32_t inst, exec_t *info) {
 }
 
 /* I-type */
-static inline void op_imm(uint32_t inst, exec_t *info) {
+static inline void op_imm(uint32_t inst, exec_t *restrict info) {
     const uint32_t __imm = IMM(I);
     const uint32_t __rd = decode_rd(inst);
 
@@ -94,13 +94,13 @@ static inline void op_imm(uint32_t inst, exec_t *info) {
 }
 
 /* U-type */
-static inline void op_auipc(uint32_t inst, exec_t *info) {
+static inline void op_auipc(uint32_t inst, exec_t *restrict info) {
     /* auipc */
     R(rd) = PC + IMM(U);
 }
 
 /* S-type */
-static inline void op_store(uint32_t inst, exec_t *info) {
+static inline void op_store(uint32_t inst, exec_t *restrict info) {
     switch (decode_funct3(inst)) {
         case 0: /* sb */
             Mw_b(R(rs1) + IMM(S), R(rs2));
@@ -118,7 +118,7 @@ static inline void op_store(uint32_t inst, exec_t *info) {
 }
 
 /* R-type */
-static inline void op_op(uint32_t inst, exec_t *info) {
+static inline void op_op(uint32_t inst, exec_t *restrict info) {
     const uint32_t funct3 = decode_funct3(inst);
 
     switch (decode_funct7(inst)) {
@@ -201,13 +201,13 @@ static inline void op_op(uint32_t inst, exec_t *info) {
 }
 
 /* U-type */
-static inline void op_lui(uint32_t inst, exec_t *info) {
+static inline void op_lui(uint32_t inst, exec_t *restrict info) {
     /* lui */
     R(rd) = IMM(U);
 }
 
 /* B-type */
-static inline void op_branch(uint32_t inst, exec_t *info) {
+static inline void op_branch(uint32_t inst, exec_t *restrict info) {
     switch (decode_funct3(inst)) {
         case 0: /* beq */
             if (R(rs1) == R(rs2)) NPC = PC + IMM(B);
@@ -234,7 +234,7 @@ static inline void op_branch(uint32_t inst, exec_t *info) {
 }
 
 /* I-type */
-static inline void op_jalr(uint32_t inst, exec_t *info) {
+static inline void op_jalr(uint32_t inst, exec_t *restrict info) {
     /* jalr */
     word_t t = PC + 4;
     NPC = (R(rs1) + IMM(I)) & ~1;
@@ -242,13 +242,13 @@ static inline void op_jalr(uint32_t inst, exec_t *info) {
 }
 
 /* J-type */
-static inline void op_jal(uint32_t inst, exec_t *info) {
+static inline void op_jal(uint32_t inst, exec_t *restrict info) {
     /* jal */
     R(rd) = PC + 4;
     NPC = PC + IMM(J);
 }
 
-static inline void op_system(uint32_t inst, exec_t *info) {
+static inline void op_system(uint32_t inst, exec_t *restrict info) {
     word_t t, *c;
     switch (decode_funct3(inst)) {
         case 0:

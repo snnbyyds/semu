@@ -23,7 +23,7 @@
 extern decode_t unimpl;
 
 /* I-type */
-static inline void op_load_fp(uint32_t inst, exec_t *info) {
+static inline void op_load_fp(uint32_t inst, exec_t *restrict info) {
     const uint32_t __rd = rd;
     switch (decode_rm(inst)) {
         case 0b010: /* flw */
@@ -40,7 +40,7 @@ static inline void op_load_fp(uint32_t inst, exec_t *info) {
 }
 
 /* S-type */
-static inline void op_store_fp(uint32_t inst, exec_t *info) {
+static inline void op_store_fp(uint32_t inst, exec_t *restrict info) {
     switch (decode_rm(inst)) {
         case 0b010: /* fsw */
             Mw_w(R(rs1) + IMM(S), F(rs2).v);
@@ -55,7 +55,7 @@ static inline void op_store_fp(uint32_t inst, exec_t *info) {
 }
 
 /* R4-type */
-static inline void op_madd(uint32_t inst, exec_t *info) {
+static inline void op_madd(uint32_t inst, exec_t *restrict info) {
     const uint32_t __rd = rd;
     switch (decode_fmt(inst)) {
         case 0: /* fmadd.s */
@@ -76,7 +76,7 @@ static inline void op_madd(uint32_t inst, exec_t *info) {
 }
 
 /* R4-type */
-static inline void op_msub(uint32_t inst, exec_t *info) {
+static inline void op_msub(uint32_t inst, exec_t *restrict info) {
     const uint32_t __rd = rd;
     switch (decode_fmt(inst)) {
         case 0: /* fmsub.s */
@@ -101,7 +101,7 @@ static inline void op_msub(uint32_t inst, exec_t *info) {
 }
 
 /* R4-type */
-static inline void op_nmsub(uint32_t inst, exec_t *info) {
+static inline void op_nmsub(uint32_t inst, exec_t *restrict info) {
     const uint32_t __rd = rd;
     switch (decode_fmt(inst)) {
         case 0: /* fnmsub.s */
@@ -126,7 +126,7 @@ static inline void op_nmsub(uint32_t inst, exec_t *info) {
 }
 
 /* R4-type */
-static inline void op_nmadd(uint32_t inst, exec_t *info) {
+static inline void op_nmadd(uint32_t inst, exec_t *restrict info) {
     const uint32_t __rd = rd;
     switch (decode_fmt(inst)) {
         case 0: /* fnmadd.s */
@@ -155,7 +155,7 @@ static inline void op_nmadd(uint32_t inst, exec_t *info) {
 }
 
 /* R-type */
-static inline void op_op_fp(uint32_t inst, exec_t *info) {
+static inline void op_op_fp(uint32_t inst, exec_t *restrict info) {
     const uint32_t __rs1 = rs1;
     const uint32_t __rs2 = rs2;
     const uint32_t __rd = rd;

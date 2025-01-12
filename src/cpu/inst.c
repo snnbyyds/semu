@@ -23,9 +23,9 @@
 
 static uint32_t inst;
 
-void itrace(exec_t *info, uint32_t inst);
+void itrace(exec_t *restrict info, uint32_t inst);
 
-static void op_err(uint32_t inst, exec_t *info) {
+static void op_err(uint32_t inst, exec_t *restrict info) {
     Error("Failed to exec inst 0x%" PRIx32 " at PC 0x%" PRIaddr "", inst, cpu.pc);
     SET_STATE(ABORT);
 }
@@ -33,7 +33,7 @@ static void op_err(uint32_t inst, exec_t *info) {
 decode_t unimpl = op_err;
 
 __attribute__((always_inline))
-static inline void inst_decode_and_exec(exec_t *info) {
+static inline void inst_decode_and_exec(exec_t *restrict info) {
     /* Basic RV32IMAFD opcode map */
     #define ____________ op_err
     static const decode_t opcode_map[] = {
@@ -55,7 +55,7 @@ static inline void inst_decode_and_exec(exec_t *info) {
     gpr(0) = 0;
 }
 
-void inst_exec_once(exec_t *info) {
+void inst_exec_once(exec_t *restrict info) {
     /* Fetch instruction from memory */
     inst = vaddr_ifetch(info->snpc);
 

@@ -53,7 +53,7 @@ size_t builtin_img_size = sizeof(builtin_img);
 __attribute__((always_inline))
 static inline void exec_once() {
     // exec the inst
-    extern void inst_exec_once(exec_t *);
+    extern void inst_exec_once(exec_t *restrict);
     exec_t exec_info = { .snpc = cpu.pc, .pc = cpu.pc };
     inst_exec_once(&exec_info);
     cpu.pc = exec_info.dnpc;

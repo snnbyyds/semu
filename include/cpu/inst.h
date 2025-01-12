@@ -25,7 +25,7 @@ typedef struct {
     vaddr_t dnpc; // Dynamic next PC
 } exec_t;
 
-typedef void (*decode_t)(uint32_t, exec_t *);
+typedef void (*decode_t)(uint32_t, exec_t *restrict);
 
 // Instruction decode masks
 enum {

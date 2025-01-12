@@ -27,7 +27,7 @@ void itrace_switch(bool flag) {
 #endif
 }
 
-void itrace(exec_t *info, uint32_t inst) {
+void itrace(exec_t *restrict info, uint32_t inst) {
 #ifdef CONFIG_ENABLE_ITRACE
     extern void disasm(char *s, vaddr_t pc, const void *code, size_t code_size);
     static char buffer[128];
