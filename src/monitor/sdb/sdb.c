@@ -75,6 +75,8 @@ static bool cmd_pause(char *args) {
 static bool cmd_info(char *args) {
     if (args && !strcmp(args, "r")) {
         reg_val_display();
+        putchar('\n');
+        fpr_val_display();
     } else {
         Warn("Invalid argument passed!");
         return false;
