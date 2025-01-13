@@ -54,8 +54,6 @@ typedef struct {
     bool intr;
 } CPU_State;
 
-void cpu_exec(uint64_t step);
-
 extern CPU_State cpu;
 
 #endif

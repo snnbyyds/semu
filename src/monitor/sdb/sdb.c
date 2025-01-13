@@ -16,6 +16,8 @@
 
 #include <cpu/cpu.h>
 #include <cpu/reg.h>
+#include <interpreter.h>
+#include <jit.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <utils/snapshot.h>
@@ -46,16 +48,16 @@ static bool cmd_quit(char *args) {
 static bool cmd_si(char *args) {
     uint64_t step;
     if (!args || !(*args)) {
-        cpu_exec(1);
+        step_interpreter_exec(1);
         return true;
     }
     sscanf(args, "%" SCNu64 "", &step);
-    cpu_exec(step);
+    step_interpreter_exec(step);
     return true;
 }
 
 static bool cmd_c(char *args) {
-    cpu_exec(-1);
+    step_interpreter_exec(-1);
     return true;
 }
 
@@ -197,7 +199,8 @@ void sdb_batchmode_on() {
 
 void start_sdb() {
     if (batch_mode) {
-        cmd_c(NULL);
+        // cmd_c(NULL);
+        jit_run();
         return;
     }
     sdb_main_session();

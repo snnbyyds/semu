@@ -23,7 +23,7 @@
 extern decode_t unimpl;
 
 /* R-type */
-static inline void op_amo(uint32_t inst, exec_t *restrict info) {
+static inline void op_amo(uint32_t inst, exec_t *restrict info, branch_prop_t *restrict branch_prop) {
     const uint32_t funct5 = (decode_funct7(inst) >> 2) & 0x1f;
     uint32_t t;
     const uint32_t __rs1 = rs1;
@@ -83,7 +83,7 @@ static inline void op_amo(uint32_t inst, exec_t *restrict info) {
             R(__rd) = t;
             break;
         default:
-            unimpl(inst, info);
+            unimpl(inst, info, branch_prop);
             break;
     }
 }

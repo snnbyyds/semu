@@ -15,9 +15,11 @@
  */
 
 #include <cpu/cpu.h>
+#include <interpreter.h>
 #include <memory.h>
 #include <device/device.h>
 #include <device/mmio.h>
+#include <jit.h>
 #include <utils/difftest.h>
 #include <utils/state.h>
 #include <utils/timer.h>
@@ -33,6 +35,7 @@ size_t image_size = -1;
 extern size_t builtin_img_size;
 
 static char *image = NULL;
+static interpreter_mode_t mode = step_mode;
 
 static void parse_args(int argc, char *argv[]) {
     const struct option options[] = {
@@ -49,7 +52,7 @@ static void parse_args(int argc, char *argv[]) {
         }
         switch (opt) {
             case 'v': printf("Version: %s\n", tostr(VERSION)); exit(EXIT_SUCCESS);
-            case 'b': sdb_batchmode_on(); break;
+            case 'b': sdb_batchmode_on(); mode = block_mode; break;
             case 1: image = optarg; break;
             default:
                 // TODO: Better prompt
@@ -105,6 +108,11 @@ void init_monitor(int argc, char *argv[]) {
     init_mmio();
     init_device();
     load_image();
+    init_interpreter(mode);
+    if (mode == block_mode) {
+        jit_init();
+        goto end;
+    }
 #ifdef CONFIG_ENABLE_ITRACE
     init_disasm();
 #endif /* CONFIG_ENABLE_ITRACE */
@@ -123,5 +131,6 @@ void init_monitor(int argc, char *argv[]) {
     );
 #endif
 #endif /* CONFIG_ENABLE_DIFFTEST */
+end:
     welcome();
 }

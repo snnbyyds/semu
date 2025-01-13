@@ -17,15 +17,15 @@
 #include <memory.h>
 #include <utils/state.h>
 
-#include "insts/rv32im.h" /* RV32I and RV32M */
-#include "insts/rv32a.h"  /* RV32A */
-#include "insts/rv32fd.h" /* RV32FD */
+#include "local-include/rv32im.h" /* RV32I and RV32M */
+#include "local-include/rv32a.h"  /* RV32A */
+#include "local-include/rv32fd.h" /* RV32FD */
 
 static uint32_t inst;
 
 void itrace(exec_t *restrict info, uint32_t inst);
 
-static void op_err(uint32_t inst, exec_t *restrict info) {
+static void op_err(uint32_t inst, exec_t *restrict info, branch_prop_t *restrict branchprop) {
     Error("Failed to exec inst 0x%" PRIx32 " at PC 0x%" PRIaddr "", inst, cpu.pc);
     SET_STATE(ABORT);
 }
@@ -33,7 +33,7 @@ static void op_err(uint32_t inst, exec_t *restrict info) {
 decode_t unimpl = op_err;
 
 __attribute__((always_inline))
-static inline void inst_decode_and_exec(exec_t *restrict info) {
+static inline void inst_decode_and_exec(exec_t *restrict info, branch_prop_t *prop) {
     /* Basic RV32IMAFD opcode map */
     #define ____________ op_err
     static const decode_t opcode_map[] = {
@@ -49,13 +49,13 @@ static inline void inst_decode_and_exec(exec_t *restrict info) {
     #undef ____________
 
     /* Decode the instruction */
-    opcode_map[(inst & INST_6_2) >> 2](inst, info);
+    opcode_map[(inst & INST_6_2) >> 2](inst, info, prop);
 
     /* Reset $zero */
     gpr(0) = 0;
 }
 
-void inst_exec_once(exec_t *restrict info) {
+void inst_exec_once(exec_t *restrict info, branch_prop_t *prop) {
     /* Fetch instruction from memory */
     inst = vaddr_ifetch(info->snpc);
 
@@ -64,5 +64,5 @@ void inst_exec_once(exec_t *restrict info) {
     info->dnpc = info->snpc;
 
     /* Decode and exec */
-    inst_decode_and_exec(info);
+    inst_decode_and_exec(info, prop);
 }
