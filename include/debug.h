@@ -20,20 +20,27 @@
 #include <stdio.h>
 
 #define Log(format, ...) \
-  printf("\33[1;97m[%s,%d,%s] " format "\33[0m\n", \
-      __FILE__, __LINE__, __func__, ## __VA_ARGS__)
+    printf("\33[1;97m[%s,%d,%s] " format "\33[0m\n", \
+        __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
 #define Info(format, ...) \
-  printf("\33[1;32m[INFO %s:%d %s] " format "\33[0m\n", \
-      __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+    printf("\33[1;32m[INFO %s:%d %s] " format "\33[0m\n", \
+        __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 #define Warn(format, ...) \
-  printf("\33[1;33m[WARN %s:%d %s] " format "\33[0m\n", \
-      __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+    printf("\33[1;33m[WARN %s:%d %s] " format "\33[0m\n", \
+        __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 #define Error(format, ...) \
-  printf("\33[1;31m[ERROR %s:%d %s] " format "\33[0m\n", \
-      __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+    printf("\33[1;31m[ERROR %s:%d %s] " format "\33[0m\n", \
+        __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+
+#define Panic(format, ...) \
+    ({ \
+        printf("\33[1;31m[ERROR %s:%d %s] " format "\33[0m\n", \
+            __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+        exit(EXIT_FAILURE); \
+    })
 
 #ifdef CONFIG_RUNTIME_CHECK
 #define Assert(cond) assert(cond)

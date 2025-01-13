@@ -44,6 +44,7 @@ static bool cmd_quit(char *args) {
 }
 
 static bool cmd_si(char *args) {
+    assert(cpu_get_mode() == interpreter_mode);
     uint64_t step;
     if (!args || !(*args)) {
         cpu_exec(1);
@@ -55,6 +56,7 @@ static bool cmd_si(char *args) {
 }
 
 static bool cmd_c(char *args) {
+    assert(cpu_get_mode() == interpreter_mode);
     cpu_exec(-1);
     return true;
 }

@@ -24,7 +24,6 @@
 #include <getopt.h>
 #include <string.h>
 
-void init_cpu(bool img_builtin);
 void init_disasm();
 void init_memory();
 void sdb_batchmode_on();
@@ -33,6 +32,7 @@ size_t image_size = -1;
 extern size_t builtin_img_size;
 
 static char *image = NULL;
+static emu_mode_t init_mode = interpreter_mode;
 
 static void parse_args(int argc, char *argv[]) {
     const struct option options[] = {
@@ -49,7 +49,7 @@ static void parse_args(int argc, char *argv[]) {
         }
         switch (opt) {
             case 'v': printf("Version: %s\n", tostr(VERSION)); exit(EXIT_SUCCESS);
-            case 'b': sdb_batchmode_on(); break;
+            case 'b': sdb_batchmode_on(); init_mode = jit_mode; break;
             case 1: image = optarg; break;
             default:
                 // TODO: Better prompt
@@ -101,7 +101,7 @@ void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
     SET_STATE(STOP);
     init_memory();
-    init_cpu(image == NULL);
+    init_cpu(image == NULL, init_mode);
     init_mmio();
     init_device();
     load_image();

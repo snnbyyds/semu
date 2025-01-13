@@ -21,8 +21,6 @@
 #include "insts/rv32a.h"  /* RV32A */
 #include "insts/rv32fd.h" /* RV32FD */
 
-static uint32_t inst;
-
 void itrace(exec_t *restrict info, uint32_t inst);
 
 static void op_err(uint32_t inst, exec_t *restrict info) {
@@ -33,7 +31,7 @@ static void op_err(uint32_t inst, exec_t *restrict info) {
 decode_t unimpl = op_err;
 
 __attribute__((always_inline))
-static inline void inst_decode_and_exec(exec_t *restrict info) {
+static inline void inst_decode_and_exec(exec_t *restrict info, uint32_t inst) {
     /* Basic RV32IMAFD opcode map */
     #define ____________ op_err
     static const decode_t opcode_map[] = {
@@ -55,14 +53,11 @@ static inline void inst_decode_and_exec(exec_t *restrict info) {
     gpr(0) = 0;
 }
 
-void inst_exec_once(exec_t *restrict info) {
-    /* Fetch instruction from memory */
-    inst = vaddr_ifetch(info->snpc);
-
+void inst_exec_once(exec_t *restrict info, uint32_t inst, branch_prop_t *prop) {
     itrace(info, inst);
     info->snpc += 4;
     info->dnpc = info->snpc;
 
     /* Decode and exec */
-    inst_decode_and_exec(info);
+    inst_decode_and_exec(info, inst);
 }

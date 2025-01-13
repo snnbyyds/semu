@@ -157,6 +157,7 @@ static void run_gdbstub() {
 }
 
 void start_gdbstub() {
+    assert(cpu_get_mode() == interpreter_mode);
     Log("Srarting gdbstub...");
     if (!init_gdbstub()) {
         Error("gdbstub init failed!");

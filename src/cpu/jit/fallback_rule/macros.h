@@ -14,28 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef __STATE_H__
-#define __STATE_H__
+#ifndef __EXEC_MACROS_H__
+#define __EXEC_MACROS_H__
 
-#include <cpu/cpu.h>
-#include <cpu/reg.h>
+#include <memory.h>
+#include <cpu/fpu.h>
+#include <cpu/inst.h>
 
-typedef enum { direct_branch, indirect_branch, none_branch } branch_prop_t;
-typedef enum { RUNNING, STOP, END, QUIT, ABORT } state_t;
+#define R(i) gpr(i)
+#define F(i) fpr(i)
+#define F32(i) ACCESS_F32(i)
+#define F64(i) ACCESS_F64(i)
 
-typedef struct {
-    state_t state;
-    vaddr_t halt_pc;
-    word_t halt_code;
+#define Mr_d vaddr_read_d
+#define Mr_w vaddr_read_w
+#define Mr_s vaddr_read_s
+#define Mr_b vaddr_read_b
+#define Mw_d vaddr_write_d
+#define Mw_w vaddr_write_w
+#define Mw_s vaddr_write_s
+#define Mw_b vaddr_write_b
 
-    /* Branch property of the final inst in the last block */
-    branch_prop_t branch_prop;
-} EMU_State;
+#define PC info->pc
+#define NPC info->dnpc
 
-bool is_good_exit_state();
-
-extern EMU_State semu_state;
-
-#define SET_STATE(S) ({ semu_state.state = (S); semu_state.halt_pc = cpu.pc; semu_state.halt_code = gpr(10); })
+#define rd (ir->rd)
+#define rs1 (ir->rs1)
+#define rs2 (ir->rs2)
+#define rs3 (ir->rs3)
+#define imm (ir->imm)
+#define rm (ir->rm)
 
 #endif

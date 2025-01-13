@@ -209,6 +209,10 @@ static inline void set_fflag() {
         cpu.fpr[idx].v64 |= UINT64_C(0xFFFFFFFF00000000); \
     })
 
+static inline void set_fpr_nan_box_upper_bits(int idx) {
+    SET_FPR_NAN_BOX_UPPER_BITS(idx);
+}
+
 __attribute__((always_inline))
 static inline float32_t unboxF32(fpr_t src) {
     if (likely(src.v64 & UINT64_C(0xFFFFFFFF00000000)) == UINT64_C(0xFFFFFFFF00000000)) {

@@ -54,8 +54,22 @@ typedef struct {
     bool intr;
 } CPU_State;
 
-void cpu_exec(uint64_t step);
+typedef enum { jit_mode, interpreter_mode, mode_notset } emu_mode_t;
+typedef enum { step_mode = interpreter_mode, block_mode = jit_mode } interpreter_mode_t; 
 
 extern CPU_State cpu;
+extern uint64_t running_seconds;
+
+#ifdef CONFIG_PAUSE_PC
+extern uint64_t sdb_pause_pc;
+#endif
+
+emu_mode_t cpu_get_mode();
+void cpu_exec(uint64_t step);
+void init_cpu(bool img_builtin, emu_mode_t m);
+void init_interpreter(interpreter_mode_t interpreter_mode);
+void interpreter_exec(uint64_t step);
+void jit_init();
+void jit_exec();
 
 #endif
