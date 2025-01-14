@@ -101,6 +101,8 @@ make run IMG=/path/fceux-mario.bin
 * timer (`src/device/timer.c`)
 * vga (`src/device/vga.c`)
 
+### JIT Mode (WIP)
+
 ## About HALs and programs
 I haven’t had the chance to develop our own Hardware Abstraction Layer, the `SAL` yet, so for now, I’ve only ported the `abstract-machine` as the abstraction layer. However, since the code in `abstract-machine`, `nanos-lite`, and `navy-apps` is related to **the ICS2024 Programming Assignment**, it ***cannot be made public***. Therefore, they will only be distributed in the form of precompiled binaries.
 
