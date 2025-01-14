@@ -25,7 +25,7 @@ typedef struct {
     vaddr_t dnpc; // Dynamic next PC
 } exec_t;
 
-typedef enum { direct_branch, indirect_branch, non_branch } branch_prop_t;
+typedef enum { direct_branch, indirect_branch, non_branch, invalid } branch_prop_t;
 
 typedef void (*decode_t)(uint32_t, exec_t *restrict, branch_prop_t *restrict);
 
@@ -122,5 +122,64 @@ static inline int32_t decode_immJ(uint32_t inst) {
 }
 
 #define decode_rm decode_funct3
+
+/* Format: _(name) */
+#define RV_INST(_) \
+    _(nop) \
+    _(add) _(addi) _(and) _(andi) \
+    _(auipc) _(beq) _(bge) _(bgeu) \
+    _(blt) _(bltu) _(bne) _(jal) \
+    _(jalr) _(lb) _(lbu) \
+    _(lh) _(lhu) _(lui) _(lw) \
+    _(or) _(ori) _(sb) _(sh) \
+    _(sll) _(slli) _(slt) _(slti) \
+    _(sltiu) _(sltu) _(sra) _(srai) \
+    _(srl) _(srli) _(sub) _(sw) \
+    _(xor) _(xori) \
+    _(div) _(divu) _(mul) \
+    _(mulh) _(mulhsu) _(mulhu) \
+    _(rem) _(remu) \
+    _(ecall) _(ebreak) _(mret) \
+    _(csrrw) _(csrrs) \
+    _(amoadd_w) _(amoand_w) _(amomaxu_w) _(amomax_w) \
+    _(amominu_w) _(amomin_w) _(amoor_w) _(amoswap_w) \
+    _(amoxor_w) _(lr_w) _(sc_w) \
+    _(fadd_s) _(fclass_s) _(fcvt_s_w) _(fcvt_s_wu) \
+    _(fcvt_w_s) _(fcvt_wu_s) _(fdiv_s) _(feq_s) \
+    _(fle_s) _(flt_s) _(flw) _(fmadd_s) \
+    _(fmax_s) _(fmin_s) _(fmsub_s) _(fmul_s) \
+    _(fmv_w_x) _(fmv_x_w) _(fnmadd_s) _(fnmsub_s) \
+    _(fsgnj_s) _(fsgnjn_s) _(fsgnjx_s) _(fsqrt_s) \
+    _(fsub_s) _(fsw) _(fadd_d) _(fclass_d) \
+    _(fcvt_d_s) _(fcvt_d_w) _(fcvt_d_wu) _(fcvt_s_d) \
+    _(fcvt_w_d) _(fcvt_wu_d) _(fdiv_d) _(feq_d) \
+    _(fle_d) _(flt_d) _(fmadd_d) _(fmax_d) \
+    _(fmin_d) _(fmsub_d) _(fmul_d) _(fnmadd_d) \
+    _(fnmsub_d) _(fsd) _(fsgnj_d) _(fsgnjn_d) \
+    _(fsgnjx_d) _(fsqrt_d) _(fsub_d) _(fld)
+
+#define RV_INST_ENUM(name) \
+    inst_ ## name,
+
+typedef enum {
+    RV_INST(RV_INST_ENUM)
+
+    /* Number of insts */
+    nr_inst,
+
+    /* Bad inst */
+    inst_err
+} riscv_inst_t;
+
+#undef RV_INST_ENUM
+
+typedef struct {
+    int32_t imm;
+    uint8_t rd;
+    uint8_t rs1;
+    uint8_t rs2;
+    uint8_t rs3;
+    uint8_t rm;
+} riscv_ir_t;
 
 #endif

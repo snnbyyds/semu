@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
-#ifndef __INTERPRETER_H__
-#define __INTERPRETER_H__
+#ifndef __JIT_COMMON_RULE_H__
+#define __JIT_COMMON_RULE_H__
 
 #include <cpu/inst.h>
-#include <jit.h>
-#include <utils/state.h>
+#include <utils/stack.h>
 
-typedef enum { step_mode, block_mode, nr_modes } interpreter_mode_t;
+#define HANDLE_INTR \
+    "HANDLE_INTR();\n"
 
-void init_interpreter(interpreter_mode_t mode);
-void step_interpreter_exec(uint64_t step);
-branch_prop_t block_interpreter_run(CPU_State *dummy_cpu, EMU_State *restrict dummy_state, exec_t *restrict info, const jit_code_env_t *dummy_env);
+#define TEMPLATE \
+    "__%08x: {\n" \
+    HANDLE_INTR \
+    "   %s\n" \
+    "   npc = 0x%08x;\n" \
+    "   goto __%08x;\n" \
+    "}\n"
+
+#define APPLY_TEMPLATE(pc, npc, exec_str) \
+    ({ \
+        sprintf(buffer, TEMPLATE, pc, exec_str, npc, npc); \
+    })
+
+#define ADD_NEXT(next_pc) \
+    ({ \
+        stack32_push(stack, next_pc); \
+    })
 
 #endif

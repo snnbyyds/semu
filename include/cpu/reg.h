@@ -117,7 +117,7 @@ typedef enum {
 } CSR_Number;
 
 __attribute__((always_inline))
-static inline word_t *csr_get_ptr(CSR_Number number) {
+static inline uint32_t *csr_get_ptr(CSR_Number number) {
     switch (number) {
         case FFLAGS: // 0x001
         case FRM: // 0x002

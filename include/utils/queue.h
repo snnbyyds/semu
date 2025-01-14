@@ -19,7 +19,7 @@
 
 #include <common.h>
 
-#define QUEUE_SIZE 128
+#define QUEUE_SIZE 262144
 
 // [front, rear)
 typedef struct {
@@ -49,6 +49,11 @@ static inline bool queue32_enqueue(volatile queue32_t *q, uint32_t value) {
     if (queue32_is_full(q)) {
         Panic("queue is full!");
         return false;
+    }
+    for (int i = q->front; i <= q->rear; i++) {
+        if (q->data[i] == value) {
+            return false;
+        }
     }
     q->data[q->rear] = value;
     q->rear = (q->rear + 1) % QUEUE_SIZE;

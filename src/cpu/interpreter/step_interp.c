@@ -91,11 +91,13 @@ static void wait_interpreter_thread() {
     }
 }
 
-static void interpreter_stat() {
+static void interpreter_exit() {
     Info("%" PRIu64 " inst simulated", step_count);
     if (running_seconds > 4) {
         Info("Simulation Speed: %" PRIu64 " inst/s", step_count / running_seconds);
     }
+    pthread_attr_destroy(&attr);
+    stop_timers();
 }
 
 void step_interpreter_exec(uint64_t step) {
@@ -119,20 +121,14 @@ void step_interpreter_exec(uint64_t step) {
             stop_timers();
         case END:
             Info("Hit Good Trap at PC 0x%08" PRIaddr "", semu_state.halt_pc);
-            pthread_attr_destroy(&attr);
-            stop_timers();
-            interpreter_stat();
+            interpreter_exit();
             break;
         case ABORT:
             Error("Hit Bad Trap at PC 0x%08" PRIaddr "", cpu.pc);
-            pthread_attr_destroy(&attr);
-            stop_timers();
-            interpreter_stat();
+            interpreter_exit();
             break;
         case QUIT:
-            pthread_attr_destroy(&attr);
-            stop_timers();
-            interpreter_stat();
+            interpreter_exit();
             break;
         default:
             break;

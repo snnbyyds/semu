@@ -208,6 +208,7 @@ static inline void op_lui(uint32_t inst, exec_t *restrict info, branch_prop_t *r
 
 /* B-type */
 static inline void op_branch(uint32_t inst, exec_t *restrict info, branch_prop_t *restrict branch_prop) {
+    *branch_prop = direct_branch;
     switch (decode_funct3(inst)) {
         case 0: /* beq */
             if (R(rs1) == R(rs2)) NPC = PC + IMM(B);
@@ -236,6 +237,7 @@ static inline void op_branch(uint32_t inst, exec_t *restrict info, branch_prop_t
 /* I-type */
 static inline void op_jalr(uint32_t inst, exec_t *restrict info, branch_prop_t *restrict branch_prop) {
     /* jalr */
+    *branch_prop = indirect_branch;
     word_t t = PC + 4;
     NPC = (R(rs1) + IMM(I)) & ~1;
     R(rd) = t;
@@ -244,6 +246,7 @@ static inline void op_jalr(uint32_t inst, exec_t *restrict info, branch_prop_t *
 /* J-type */
 static inline void op_jal(uint32_t inst, exec_t *restrict info, branch_prop_t *restrict branch_prop) {
     /* jal */
+    *branch_prop = direct_branch;
     R(rd) = PC + 4;
     NPC = PC + IMM(J);
 }
@@ -254,12 +257,14 @@ static inline void op_system(uint32_t inst, exec_t *restrict info, branch_prop_t
         case 0:
             switch (IMM(I)) {
                 case 0: /* ecall */
+                    *branch_prop = indirect_branch;
                     NPC = ISA_RAISE_INTR(0xb, PC);
                     break;
                 case 1: /* ebreak */
                     SET_STATE(gpr(10) ? ABORT : END);
                     break;
                 case 0x302: /* mret */
+                    *branch_prop = indirect_branch;
                     NPC = cpu.csr_mepc;
                     const uint32_t mstatus_mpie =
                         (cpu.csr_mstatus & MSTATUS_MPIE) >> MSTATUS_MPIE_SHIFT;

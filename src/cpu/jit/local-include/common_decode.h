@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef __INTERPRETER_H__
-#define __INTERPRETER_H__
+#ifndef __JIT_COMMON_DECODE_H__
+#define __JIT_COMMON_DECODE_H__
 
 #include <cpu/inst.h>
-#include <jit.h>
-#include <utils/state.h>
 
-typedef enum { step_mode, block_mode, nr_modes } interpreter_mode_t;
-
-void init_interpreter(interpreter_mode_t mode);
-void step_interpreter_exec(uint64_t step);
-branch_prop_t block_interpreter_run(CPU_State *dummy_cpu, EMU_State *restrict dummy_state, exec_t *restrict info, const jit_code_env_t *dummy_env);
+static inline riscv_inst_t decode_invalid(uint32_t inst, riscv_ir_t *ir) {
+    Panic("Invalid rule");
+    return inst_err;
+}
 
 #endif
