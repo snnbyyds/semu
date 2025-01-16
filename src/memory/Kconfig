@@ -12,4 +12,8 @@ config RESET_VECTOR
   hex "PC reset vector"
   default 0x80000000
 
+config ENABLE_TLB
+  bool "Enable TLB"
+  default n
+
 endmenu

@@ -25,7 +25,7 @@ static uint8_t memory[CONFIG_MSIZE] PG_ALIGN;
 void *pmem = memory;
 
 /* MMU and TLB */
-
+#ifdef CONFIG_ENABLE_TLB
 typedef struct {
     PTE pte; // serves as value
     uint32_t vpn; // serves as key
@@ -34,17 +34,21 @@ typedef struct {
 
 static tlb_entry_t *tlb = NULL;
 
-#define NR_TLB_ENTRY 512
+#define NR_TLB_ENTRY 128
+#endif
 
 void isa_tlb_flush() {
+#ifdef CONFIG_ENABLE_TLB
     tlb_entry_t *cur = NULL;
     tlb_entry_t *nxt = NULL;
     HASH_ITER(hh, tlb, cur, nxt) {
         HASH_DEL(tlb, cur);
         free(cur);
     }
+#endif
 }
 
+#ifdef CONFIG_ENABLE_TLB
 __attribute__((always_inline))
 static inline void isa_tlb_add_mapping(uint32_t vpn, PTE pte) {
     tlb_entry_t *cur = NULL;
@@ -81,6 +85,7 @@ static inline PTE isa_get_cached_pte(uint32_t vpn) {
     }
     return -1;
 }
+#endif
 
 __attribute__((always_inline))
 static inline paddr_t isa_pgtable_walk(vaddr_t vaddr, mem_access_t type) {
@@ -111,7 +116,9 @@ static inline paddr_t isa_pgtable_walk(vaddr_t vaddr, mem_access_t type) {
             assert(0);
     }
 
+#ifdef CONFIG_ENABLE_TLB
     isa_tlb_add_mapping((vaddr & VA_VPN) >> VA_VPN_SHIFT, *lv2_PTE);
+#endif
 
     return ((*lv2_PTE & PTE_PPN) << 2) + (vaddr & VA_OFFSET);
 }
@@ -123,11 +130,13 @@ static inline paddr_t isa_pgtable_walk(vaddr_t vaddr, mem_access_t type) {
  */
 __attribute__((always_inline))
 static inline paddr_t isa_mmu_translate(vaddr_t vaddr, mem_access_t type) {
+#ifdef CONFIG_ENABLE_TLB
     PTE pte = -1;
     uint32_t vpn = (vaddr & VA_VPN) >> VA_VPN_SHIFT;
     if ((pte = isa_get_cached_pte(vpn)) != -1) {
         return ((pte & PTE_PPN) << 2) + (vaddr & VA_OFFSET);
     }
+#endif
     return isa_pgtable_walk(vaddr, type);
 }
 
