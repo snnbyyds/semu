@@ -3,6 +3,15 @@ mainmenu "SEMU Configuration Menu"
 source "src/memory/Kconfig"
 source "src/device/Kconfig"
 
+choice
+  prompt "Build target"
+  default TARGET_NATIVE_ELF
+config TARGET_NATIVE_ELF
+  bool "Executable on Linux Native"
+config TARGET_SHARE
+  bool "Shared object (used as REF for differential testing)"
+endchoice
+
 menu "Build Options"
 choice
   prompt "Compiler"
@@ -44,7 +53,6 @@ config CC_OPT
   default "none"
 
 config CC_LTO
-  depends on !TARGET_AM
   bool "Enable link-time optimization"
   default n
 

@@ -16,6 +16,8 @@ SRCS-y += src/semu-main.c
 DIRS-y += src/cpu src/memory src/monitor src/utils src/device
 LIBS += -lreadline -lSDL3 -lSDL3_image -lpthread -ldl -lm
 
+SHARE = $(if $(CONFIG_TARGET_SHARE),1,0)
+
 LIBSOFTFLOAT = libs/softfloat/repo/build/Linux-x86_64-GCC/softfloat.a
 CFLAGS += -I libs/softfloat/repo/source/include
 

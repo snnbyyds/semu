@@ -6,7 +6,7 @@ endif
 
 SOFTFLOAT = $(REPO_PATH)/build/Linux-x86_64-GCC/softfloat.a
 $(SOFTFLOAT):
-	cd $(REPO_PATH) && make -C build/Linux-x86_64-GCC
+	cd $(REPO_PATH) && make SOFTFLOAT_OPTS="-fPIC -DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -O3" -C build/Linux-x86_64-GCC
 
 clean:
 	$(MAKE) -C $(REPO_PATH) clean
