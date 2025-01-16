@@ -90,7 +90,7 @@ make run IMG=/path/fceux-mario.bin
 ### Memory Simulation `src/memory`
 * Basic read and write operations
 * RV32 Sv32 paging (Basic)
-* TLB (NOT implemented)
+* TLB (Quite a bad implementation so not enabled by default)
 * MMIO `src/device/mmio`
 
 ### Device Simulation `src/device`
