@@ -252,6 +252,10 @@ static inline void op_system(uint32_t inst, exec_t *restrict info) {
     word_t t, *c;
     switch (decode_funct3(inst)) {
         case 0:
+            if ((inst >> 25) == 0x9) {
+                isa_tlb_flush();
+                break;
+            }
             switch (IMM(I)) {
                 case 0: /* ecall */
                     NPC = ISA_RAISE_INTR(0xb, PC);

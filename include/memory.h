@@ -43,9 +43,11 @@
 #define VA_OFFSET_SHIFT  0
 #define VA_VPN_0_SHIFT   12
 #define VA_VPN_1_SHIFT   22
+#define VA_VPN_SHIFT     (VA_VPN_0_SHIFT)
 #define VA_OFFSET        (0xFFF << VA_OFFSET_SHIFT) // 12 bits for offset
 #define VA_VPN_0         (0x3FF << VA_VPN_0_SHIFT)  // 10 bits for VPN_0
 #define VA_VPN_1         (0x3FF << VA_VPN_1_SHIFT)  // 10 bits for VPN_1
+#define VA_VPN           (VA_VPN_0 | VA_VPN_1)
 
 #define PA_OFFSET_SHIFT  0
 #define PA_PPN_SHIFT     12
@@ -105,5 +107,7 @@ void vaddr_write_s(vaddr_t addr, uint16_t data);
 void vaddr_write_b(vaddr_t addr, uint8_t data);
 
 word_t vaddr_ifetch(vaddr_t addr);
+
+void isa_tlb_flush();
 
 #endif
